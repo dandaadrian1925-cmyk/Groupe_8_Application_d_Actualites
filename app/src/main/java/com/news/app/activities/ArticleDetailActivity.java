@@ -17,7 +17,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash); // ton layout avec l'animation
 
-        new Handler().postDelayed(() -> {
+        new Handler(g6).postDelayed(() -> {
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                 // utilisateur déjà connecté
                 startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
