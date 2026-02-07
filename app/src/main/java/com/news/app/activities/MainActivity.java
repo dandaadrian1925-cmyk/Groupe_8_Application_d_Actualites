@@ -1,5 +1,5 @@
-package com.news.app;
-
+package com.news.app.activities;
+import com.news.app.R;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
