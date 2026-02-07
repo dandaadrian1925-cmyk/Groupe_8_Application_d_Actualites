@@ -1,57 +1,69 @@
 package com.news.app.activities;
-import com.news.app.R;
+
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Patterns;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.news.app.R;
+import com.news.app.adapters.ArticleAdapter;
+import com.news.app.model.Article;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText etEmail, etPassword;
-    Button btnLogin;
+    private RecyclerView rvArticles;
+    private ArticleAdapter articleAdapter;
+    private List<Article> articleList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
+        rvArticles = findViewById(R.id.rvArticles);
 
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString();
+        // ----------------------
+        // Préparer la liste d'articles mockée
+        // ----------------------
+        articleList = new ArrayList<>();
+        mockArticles();
 
-            if (!isValidEmail(email)) {
-                etEmail.setError("Email invalide");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (!isValidPassword(password)) {
-                etPassword.setError("Mot de passe invalide (8+ chars, 1 chiffre, 1 spécial)");
-                etPassword.requestFocus();
-                return;
-            }
-
-            // TODO: ici tu peux connecter à Firebase ou ton backend
-            Toast.makeText(MainActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-        });
+        // ----------------------
+        // Configurer RecyclerView
+        // ----------------------
+        articleAdapter = new ArticleAdapter(articleList, this::onArticleClick);
+        rvArticles.setLayoutManager(new LinearLayoutManager(this));
+        rvArticles.setAdapter(articleAdapter);
     }
 
-    // Vérifie email
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    // ----------------------
+    // Clic sur un article
+    // ----------------------
+    private void onArticleClick(Article article) {
+        Intent intent = new Intent(MainActivity.this, ArticleDetailActivity.class);
+        intent.putExtra("articleId", article.getId());
+        startActivity(intent);
     }
 
-    // Vérifie mot de passe : 8+ caractères, au moins 1 chiffre et 1 caractère spécial
-    private boolean isValidPassword(String password) {
-        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
-        return password.matches(passwordPattern);
+    // ----------------------
+    // Mock articles
+    // ----------------------
+    private void mockArticles() {
+        for (int i = 1; i <= 10; i++) {
+            Article a = new Article();
+            a.setId(String.valueOf(i));
+            a.setTitle("Titre Article " + i);
+            a.setDescription("Description courte de l'article " + i);
+            a.setContent("Contenu complet de l'article " + i + "...");
+            a.setCategory("Actualité");
+            a.setAuthor("Auteur " + i);
+            a.setPublishedAt("2026-02-07");
+            articleList.add(a);
+        }
     }
 }

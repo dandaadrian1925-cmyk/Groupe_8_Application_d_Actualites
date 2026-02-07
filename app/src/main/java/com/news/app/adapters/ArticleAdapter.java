@@ -1,57 +1,80 @@
-package com.news.app;
+package com.news.app.adapters;
 
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Patterns;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity {
+import com.news.app.R;
+import com.news.app.model.Article;
 
-    EditText etEmail, etPassword;
-    Button btnLogin;
+import java.util.List;
+
+public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleViewHolder> {
+
+    private List<Article> articles;
+    private OnArticleClickListener listener;
+
+    // Interface pour le clic sur un article
+    public interface OnArticleClickListener {
+        void onArticleClick(Article article);
+    }
+
+    public ArticleAdapter(List<Article> articles, OnArticleClickListener listener) {
+        this.articles = articles;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_article, parent, false);
+        return new ArticleViewHolder(view);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString();
-
-            if (!isValidEmail(email)) {
-                etEmail.setError("Email invalide");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (!isValidPassword(password)) {
-                etPassword.setError("Mot de passe invalide (8+ chars, 1 chiffre, 1 spécial)");
-                etPassword.requestFocus();
-                return;
-            }
-
-            // TODO: ici tu peux connecter à Firebase ou ton backend
-            Toast.makeText(MainActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-        });
+    public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
+        Article article = articles.get(position);
+        holder.bind(article);
     }
 
-    // Vérifie email
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    @Override
+    public int getItemCount() {
+        return articles.size();
     }
 
-    // Vérifie mot de passe : 8+ caractères, au moins 1 chiffre et 1 caractère spécial
-    private boolean isValidPassword(String password) {
-        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
-        return password.matches(passwordPattern);
+    // ----------------------
+    // ViewHolder
+    // ----------------------
+    class ArticleViewHolder extends RecyclerView.ViewHolder {
+
+        TextView tvTitle, tvDescription;
+        ImageView ivImage;
+
+        public ArticleViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvTitle = itemView.findViewById(R.id.tvArticleTitle);
+            tvDescription = itemView.findViewById(R.id.tvArticleDescription);
+            ivImage = itemView.findViewById(R.id.ivArticleImage);
+        }
+
+        void bind(Article article) {
+            tvTitle.setText(article.getTitle());
+            tvDescription.setText(article.getDescription());
+
+            // Pour l'instant, image placeholder
+            ivImage.setImageResource(R.drawable.ic_launcher_background);
+
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onArticleClick(article);
+                }
+            });
+        }
     }
 }
