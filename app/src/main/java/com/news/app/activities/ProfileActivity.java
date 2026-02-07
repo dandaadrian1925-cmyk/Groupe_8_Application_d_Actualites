@@ -1,31 +1,63 @@
-package com.news.app;
+package com.news.app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.bumptech.glide.Glide;
+import com.news.app.R;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY = 2000; // 2 secondes
+    private ImageView ivProfile;
+    private TextView tvName, tvEmail, tvFavoritesCount;
+    private Button btnEditProfile, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash); // ton layout avec l'animation
+        setContentView(R.layout.activity_profile);
 
-        new Handler().postDelayed(() -> {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                // utilisateur déjà connecté
-                startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            } else {
-                // utilisateur non connecté
-                startActivity(new Intent(SplashScreenActivity.this, RegisterActivity.class));
-            }
+        initViews();
+        loadUserData();
+        setupActions();
+    }
+
+    private void initViews() {
+        ivProfile = findViewById(R.id.ivProfile);
+        tvName = findViewById(R.id.tvProfileName);
+        tvEmail = findViewById(R.id.tvProfileEmail);
+        tvFavoritesCount = findViewById(R.id.tvFavoritesCount);
+        btnEditProfile = findViewById(R.id.btnEditProfile);
+        btnLogout = findViewById(R.id.btnLogout);
+    }
+
+    private void loadUserData() {
+        // MOCK DATA (à remplacer plus tard par SharedPreferences ou API)
+        tvName.setText("Dan Di");
+        tvEmail.setText("dandi@email.com");
+        tvFavoritesCount.setText("Articles favoris : 5");
+
+        // Image profil avec Glide
+        Glide.with(this)
+                .load("https://i.pravatar.cc/300") // Exemple avatar aléatoire
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(ivProfile);
+    }
+
+    private void setupActions() {
+        btnEditProfile.setOnClickListener(v -> {
+            // TODO : ajouter modification profil
+        });
+
+        btnLogout.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            startActivity(intent);
             finish();
-        }, SPLASH_DELAY);
+        });
     }
 }

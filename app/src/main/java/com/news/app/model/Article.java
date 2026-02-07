@@ -1,4 +1,3 @@
-
 package com.news.app.model;
 
 import java.text.ParseException;
@@ -6,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class Article {
 
@@ -24,27 +25,31 @@ public class Article {
     private boolean isFavorite;
 
     // ----------------------
-    // Champs supplémentaires utiles
+    // Champs supplémentaires
     // ----------------------
-    private String sourceName;         // Nom de la source
-    private String sourceId;           // ID source si API
-    private List<String> tags;         // Mots-clés ou tags
-    private int readTime;              // Temps de lecture estimé en minutes
-    private String language;           // Langue de l’article (ex: "fr", "en")
-    private String videoUrl;           // URL vidéo si présente
-    private int views;                 // Nombre de vues
+    private String sourceName;
+    private String sourceId;
+    private List<String> tags;
+    private int readTime;
+    private String language;
+    private String videoUrl;
+    private int views;
 
     // ----------------------
-    // Constructeurs
+    // Constructeur vide
     // ----------------------
     public Article() {
-        tags = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
-    public Article(String id, String title, String description, String content, String imageUrl,
-                   String category, String author, String publishedAt, String url, boolean isFavorite,
-                   String sourceName, String sourceId, List<String> tags, int readTime, String language,
-                   String videoUrl, int views) {
+    // ----------------------
+    // Constructeur complet
+    // ----------------------
+    public Article(String id, String title, String description, String content,
+                   String imageUrl, String category, String author,
+                   String publishedAt, String url, boolean isFavorite,
+                   String sourceName, String sourceId, List<String> tags,
+                   int readTime, String language, String videoUrl, int views) {
 
         this.id = id;
         this.title = title;
@@ -66,7 +71,7 @@ public class Article {
     }
 
     // ----------------------
-    // Getters et Setters
+    // Getters & Setters
     // ----------------------
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -105,7 +110,9 @@ public class Article {
     public void setSourceId(String sourceId) { this.sourceId = sourceId; }
 
     public List<String> getTags() { return tags; }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setTags(List<String> tags) {
+        this.tags = tags != null ? tags : new ArrayList<>();
+    }
 
     public int getReadTime() { return readTime; }
     public void setReadTime(int readTime) { this.readTime = readTime; }
@@ -122,6 +129,7 @@ public class Article {
     // ----------------------
     // Méthodes utilitaires
     // ----------------------
+
     public boolean isValidArticle() {
         return title != null && !title.isEmpty()
                 && description != null && !description.isEmpty()
@@ -131,8 +139,9 @@ public class Article {
 
     public Date getPublishedDate() {
         if (publishedAt == null) return null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             return sdf.parse(publishedAt);
         } catch (ParseException e) {
             return null;
@@ -142,7 +151,7 @@ public class Article {
     public String getFriendlyDate() {
         Date date = getPublishedDate();
         if (date == null) return "";
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
         return sdf.format(date);
     }
 
@@ -152,5 +161,36 @@ public class Article {
 
     public void toggleFavorite() {
         this.isFavorite = !this.isFavorite;
+    }
+
+    // ----------------------
+    // equals & hashCode (IMPORTANT)
+    // ----------------------
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Article)) return false;
+        Article article = (Article) o;
+        return Objects.equals(id, article.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    // ----------------------
+    // toString (debug)
+    // ----------------------
+    @Override
+    public String toString() {
+        return "Article{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", category='" + category + '\'' +
+                ", author='" + author + '\'' +
+                ", publishedAt='" + publishedAt + '\'' +
+                ", isFavorite=" + isFavorite +
+                '}';
     }
 }

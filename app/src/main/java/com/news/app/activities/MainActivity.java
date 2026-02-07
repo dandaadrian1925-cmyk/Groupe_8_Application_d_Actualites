@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         // ----------------------
         // Configurer RecyclerView
         // ----------------------
-        articleAdapter = new ArticleAdapter(articleList, this::onArticleClick);
+        articleAdapter = new ArticleAdapter(this, articleList);
         rvArticles.setLayoutManager(new LinearLayoutManager(this));
         rvArticles.setAdapter(articleAdapter);
     }
