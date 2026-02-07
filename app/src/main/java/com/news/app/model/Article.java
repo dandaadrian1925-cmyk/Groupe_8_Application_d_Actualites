@@ -1,5 +1,5 @@
 
-package com.news.app.models;
+package com.news.app.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
