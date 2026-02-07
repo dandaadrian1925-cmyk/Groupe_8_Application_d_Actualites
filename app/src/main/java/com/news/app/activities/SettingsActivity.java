@@ -1,31 +1,64 @@
-package com.news.app;
+package com.news.app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.widget.Button;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.news.app.R;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY = 2000; // 2 secondes
+    private TextView tvNotifications, tvDarkMode;
+    private Switch switchNotifications, switchDarkMode;
+    private Button btnChangePassword, btnLogoutSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash); // ton layout avec l'animation
+        setContentView(R.layout.activity_settings);
 
-        new Handler().postDelayed(() -> {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                // utilisateur déjà connecté
-                startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            } else {
-                // utilisateur non connecté
-                startActivity(new Intent(SplashScreenActivity.this, RegisterActivity.class));
-            }
+        initViews();
+        setupActions();
+        loadSettings();
+    }
+
+    private void initViews() {
+        tvNotifications = findViewById(R.id.tvNotifications);
+        tvDarkMode = findViewById(R.id.tvDarkMode);
+        switchNotifications = findViewById(R.id.switchNotifications);
+        switchDarkMode = findViewById(R.id.switchDarkMode);
+        btnChangePassword = findViewById(R.id.btnChangePassword);
+        btnLogoutSettings = findViewById(R.id.btnLogoutSettings);
+    }
+
+    private void loadSettings() {
+        // MOCK : charger les paramètres existants
+        switchNotifications.setChecked(true); // notifications activées par défaut
+        switchDarkMode.setChecked(false);     // mode sombre désactivé par défaut
+    }
+
+    private void setupActions() {
+
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // TODO: sauvegarder préférence notification
+        });
+
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // TODO: appliquer le mode sombre
+        });
+
+        btnChangePassword.setOnClickListener(v -> {
+            // TODO: ouvrir EditPasswordActivity ou dialogue de changement mot de passe
+        });
+
+        btnLogoutSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+            startActivity(intent);
             finish();
-        }, SPLASH_DELAY);
+        });
     }
 }

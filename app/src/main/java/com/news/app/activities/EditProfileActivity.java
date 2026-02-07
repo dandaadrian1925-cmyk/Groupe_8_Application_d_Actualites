@@ -1,31 +1,83 @@
-package com.news.app;
+package com.news.app.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.bumptech.glide.Glide;
+import com.news.app.R;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY = 2000; // 2 secondes
+    private ImageView ivProfile;
+    private Button btnChangePhoto, btnSave, btnCancel;
+    private EditText etName, etEmail;
+
+    private Uri selectedImageUri;
+
+    // Launcher pour choisir une image depuis la galerie
+    private final ActivityResultLauncher<String> pickImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri;
+                    Glide.with(this)
+                            .load(selectedImageUri)
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .into(ivProfile);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash); // ton layout avec l'animation
+        setContentView(R.layout.activity_edit_profile);
 
-        new Handler().postDelayed(() -> {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                // utilisateur déjà connecté
-                startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            } else {
-                // utilisateur non connecté
-                startActivity(new Intent(SplashScreenActivity.this, RegisterActivity.class));
-            }
-            finish();
-        }, SPLASH_DELAY);
+        initViews();
+        loadUserData();
+        setupActions();
+    }
+
+    private void initViews() {
+        ivProfile = findViewById(R.id.ivEditProfile);
+        btnChangePhoto = findViewById(R.id.btnChangePhoto);
+        btnSave = findViewById(R.id.btnSave);
+        btnCancel = findViewById(R.id.btnCancel);
+        etName = findViewById(R.id.etName);
+        etEmail = findViewById(R.id.etEmail);
+    }
+
+    private void loadUserData() {
+        // MOCK DATA
+        etName.setText("Dan Di");
+        etEmail.setText("dandi@email.com");
+
+        Glide.with(this)
+                .load("https://i.pravatar.cc/300")
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(ivProfile);
+    }
+
+    private void setupActions() {
+
+        btnChangePhoto.setOnClickListener(v -> {
+            // Ouvre la galerie pour choisir une image
+            pickImageLauncher.launch("image/*");
+        });
+
+        btnSave.setOnClickListener(v -> {
+            // TODO: sauvegarder les modifications (SharedPreferences ou API)
+            finish(); // retourne à ProfileActivity
+        });
+
+        btnCancel.setOnClickListener(v -> {
+            finish(); // annule et retourne à ProfileActivity
+        });
     }
 }
