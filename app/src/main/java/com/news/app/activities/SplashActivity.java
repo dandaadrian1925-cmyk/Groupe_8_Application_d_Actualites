@@ -1,31 +1,32 @@
-package com.news.app;
-
+package com.news.app.activities;
+import com.news.app.R;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+/**
+ * Splash screen affiché au lancement de l'application.
+ * Affiche le logo "News" et passe automatiquement à LoginActivity après un délai.
+ */
+public class SplashActivity extends AppCompatActivity {
 
-public class SplashScreenActivity extends AppCompatActivity {
-
-    private static final int SPLASH_DELAY = 2000; // 2 secondes
+    // Durée du splash en millisecondes (2 secondes)
+    private static final int SPLASH_DELAY = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash); // ton layout avec l'animation
+        setContentView(R.layout.activity_splash);
 
-        new Handler().postDelayed(() -> {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                // utilisateur déjà connecté
-                startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            } else {
-                // utilisateur non connecté
-                startActivity(new Intent(SplashScreenActivity.this, RegisterActivity.class));
-            }
-            finish();
+        // Utilise Handler avec Looper.getMainLooper() pour être sûr d'exécuter sur le thread principal
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // Redirection vers LoginActivity
+            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish(); // Ferme le splash pour ne pas revenir en arrière
         }, SPLASH_DELAY);
     }
 }
