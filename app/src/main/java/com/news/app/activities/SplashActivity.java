@@ -1,32 +1,47 @@
 package com.news.app.activities;
-import com.news.app.R;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-/**
- * Splash screen affiché au lancement de l'application.
- * Affiche le logo "News" et passe automatiquement à LoginActivity après un délai.
- */
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.news.app.R;
+
 public class SplashActivity extends AppCompatActivity {
 
-    // Durée du splash en millisecondes (2 secondes)
-    private static final int SPLASH_DELAY = 2000;
+    private static final int SPLASH_DELAY = 2500; // 2,5 secondes de splash
+    private FirebaseAuth mAuth;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Utilise Handler avec Looper.getMainLooper() pour être sûr d'exécuter sur le thread principal
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Redirection vers LoginActivity
-            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish(); // Ferme le splash pour ne pas revenir en arrière
-        }, SPLASH_DELAY);
+        // Initialiser Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // Attendre SPLASH_DELAY ms puis vérifier l'utilisateur
+        new Handler(Looper.getMainLooper()).postDelayed(this::checkUser, SPLASH_DELAY);
+    }
+
+    private void checkUser() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        Intent intent;
+
+        if (currentUser != null) {
+            // Utilisateur connecté → MainActivity
+            intent = new Intent(SplashActivity.this, MainActivity.class);
+        } else {
+            // Non connecté → LoginActivity
+            intent = new Intent(SplashActivity.this, LoginActivity.class);
+        }
+
+        startActivity(intent);
+        finish(); // Empêche de revenir à la splash screen
     }
 }

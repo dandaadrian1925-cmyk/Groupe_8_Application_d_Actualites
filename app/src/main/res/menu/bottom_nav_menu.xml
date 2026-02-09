@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Accueil -->
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_home_selector"
         android:title="Accueil"/>
 
+    <!-- Favoris -->
+    <item
+        android:id="@+id/nav_favorites"
+        android:icon="@drawable/ic_favorite_selector"
+        android:title="Favoris"/>
+
+    <!-- Catégories -->
     <item
         android:id="@+id/nav_category"
         android:icon="@drawable/ic_category_selector"
         android:title="Catégories"/>
 
-    <item
-        android:id="@+id/nav_search"
-        android:icon="@drawable/ic_search_selector"
-        android:title="Recherche"/>
-
+    <!-- Profil -->
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_profile_selector"
