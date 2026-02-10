@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    // 🔹 Android UI
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -43,14 +44,18 @@ dependencies {
     // 🔹 Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-
-    // 🔹 Ajout Firestore
     implementation(libs.firebase.firestore)
 
+    // 🔹 Glide pour les images
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+
+    // 🔹 Networking et JSON
+    implementation(libs.retrofit)
+    implementation(libs.gsonConverter)
+
+    // 🔹 Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
 }
