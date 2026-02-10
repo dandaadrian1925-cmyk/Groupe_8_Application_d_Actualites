@@ -6,4 +6,7 @@
     <color name="gray_200">#E0E0E0</color> <!-- fond clair si image absente -->
     <color name="gray_400">#BDBDBD</color>
     <color name="red_primary">#F44336</color>
+    <color name="dark_red">#8B0000</color>
+    <color name="light_red">#B22222</color>
+
 </resources>
