@@ -1,57 +1,76 @@
 package com.news.app.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.news.app.R;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private TextInputEditText etEmail;
-    private MaterialButton btnResetPassword;
-    private TextView tvLoginLink;
+    private EditText etEmailForgot;
+    private Button btnSendReset;
+    private TextView tvBackLogin;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
-        // Lier les vues
-        etEmail = findViewById(R.id.etEmail);
-        btnResetPassword = findViewById(R.id.btnResetPassword);
-        tvLoginLink = findViewById(R.id.tvLoginLink);
+        // Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
-        // Clique sur Réinitialiser
-        btnResetPassword.setOnClickListener(v -> attemptReset());
+        // Récupération des vues
+        etEmailForgot = findViewById(R.id.etEmailForgot);
+        btnSendReset = findViewById(R.id.btnSendReset);
+        tvBackLogin = findViewById(R.id.tvBackLogin);
 
-        // Lien vers Login
-        tvLoginLink.setOnClickListener(v -> startActivity(new Intent(ForgotPasswordActivity.this, LoginActivity.class)));
+        // 🔹 Bouton Envoyer
+        btnSendReset.setOnClickListener(v -> resetPassword());
+
+        // 🔹 Bouton Retour
+        tvBackLogin.setOnClickListener(v -> finish()); // Retour à LoginActivity
     }
 
-    private void attemptReset() {
-        String email = etEmail.getText().toString().trim();
+    private void resetPassword() {
+        String email = etEmailForgot.getText().toString().trim();
 
-        if (!isValidEmail(email)) {
-            etEmail.setError("Email invalide");
-            etEmail.requestFocus();
+        if (TextUtils.isEmpty(email)) {
+            etEmailForgot.setError("Veuillez entrer votre email");
+            etEmailForgot.requestFocus();
             return;
         }
 
-        // ----------------------
-        // TODO: Ajouter logique Firebase / backend pour reset mot de passe
-        // ----------------------
-        Toast.makeText(this, "Email de réinitialisation envoyé !", Toast.LENGTH_SHORT).show();
-    }
+        btnSendReset.setEnabled(false);
+        btnSendReset.setText("Envoi...");
 
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    btnSendReset.setEnabled(true);
+                    btnSendReset.setText("Envoyer");
+
+                    if (task.isSuccessful()) {
+                        Toast.makeText(ForgotPasswordActivity.this,
+                                "Lien de réinitialisation envoyé ✅",
+                                Toast.LENGTH_LONG).show();
+                        finish(); // Retour à la page login
+                    } else {
+                        String errorMessage = "Erreur inattendue";
+                        if (task.getException() != null) {
+                            errorMessage = task.getException().getMessage();
+                        }
+                        Toast.makeText(ForgotPasswordActivity.this,
+                                "Erreur : " + errorMessage,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }
