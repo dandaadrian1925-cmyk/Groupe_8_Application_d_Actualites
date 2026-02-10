@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Item sélectionné → rouge comme header -->
+    <item android:color="#8B0000" android:state_checked="true"/>
+    <!-- Item non sélectionné → noir ou gris -->
+    <item android:color="#808080"/>
+</selector>
