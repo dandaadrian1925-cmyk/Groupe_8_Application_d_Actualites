@@ -1,5 +1,6 @@
 package com.news.app.model;
 
+import com.google.gson.annotations.SerializedName;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,72 +11,40 @@ import java.util.Objects;
 
 public class Article {
 
-    // ----------------------
-    // Champs principaux
-    // ----------------------
-    private String id;
+    @SerializedName("title")
     private String title;
-    private String description;
-    private String content;
-    private String imageUrl;
-    private String category;
-    private String author;
-    private String publishedAt; // format "yyyy-MM-dd"
-    private String url;
-    private boolean isFavorite;
 
-    // ----------------------
-    // Champs supplémentaires
-    // ----------------------
-    private String sourceName;
-    private String sourceId;
-    private List<String> tags;
-    private int readTime;
-    private String language;
-    private String videoUrl;
-    private int views;
+    @SerializedName("description")
+    private String description;
+
+    @SerializedName("content")
+    private String content;
+
+    @SerializedName("urlToImage")
+    private String imageUrl;
+
+    @SerializedName("url")
+    private String url;
+
+    @SerializedName("publishedAt")
+    private String publishedAt;
+
+    @SerializedName("author")
+    private String author;
+
+    @SerializedName("source")
+    private Source source;
+
+    private boolean isFavorite;
 
     // ----------------------
     // Constructeur vide
     // ----------------------
-    public Article() {
-        this.tags = new ArrayList<>();
-    }
-
-    // ----------------------
-    // Constructeur complet
-    // ----------------------
-    public Article(String id, String title, String description, String content,
-                   String imageUrl, String category, String author,
-                   String publishedAt, String url, boolean isFavorite,
-                   String sourceName, String sourceId, List<String> tags,
-                   int readTime, String language, String videoUrl, int views) {
-
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.content = content;
-        this.imageUrl = imageUrl;
-        this.category = category;
-        this.author = author;
-        this.publishedAt = publishedAt;
-        this.url = url;
-        this.isFavorite = isFavorite;
-        this.sourceName = sourceName;
-        this.sourceId = sourceId;
-        this.tags = tags != null ? tags : new ArrayList<>();
-        this.readTime = readTime;
-        this.language = language;
-        this.videoUrl = videoUrl;
-        this.views = views;
-    }
+    public Article() {}
 
     // ----------------------
     // Getters & Setters
     // ----------------------
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
@@ -88,60 +57,28 @@ public class Article {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public String getUrl() { return url; }
+    public void setUrl(String url) { this.url = url; }
 
     public String getPublishedAt() { return publishedAt; }
     public void setPublishedAt(String publishedAt) { this.publishedAt = publishedAt; }
 
-    public String getUrl() { return url; }
-    public void setUrl(String url) { this.url = url; }
+    public String getAuthor() { return author; }
+    public void setAuthor(String author) { this.author = author; }
+
+    public String getSourceName() {
+        return source != null ? source.name : "";
+    }
 
     public boolean isFavorite() { return isFavorite; }
     public void setFavorite(boolean favorite) { isFavorite = favorite; }
 
-    public String getSourceName() { return sourceName; }
-    public void setSourceName(String sourceName) { this.sourceName = sourceName; }
-
-    public String getSourceId() { return sourceId; }
-    public void setSourceId(String sourceId) { this.sourceId = sourceId; }
-
-    public List<String> getTags() { return tags; }
-    public void setTags(List<String> tags) {
-        this.tags = tags != null ? tags : new ArrayList<>();
-    }
-
-    public int getReadTime() { return readTime; }
-    public void setReadTime(int readTime) { this.readTime = readTime; }
-
-    public String getLanguage() { return language; }
-    public void setLanguage(String language) { this.language = language; }
-
-    public String getVideoUrl() { return videoUrl; }
-    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
-
-    public int getViews() { return views; }
-    public void setViews(int views) { this.views = views; }
-
-    // ----------------------
-    // Méthodes utilitaires
-    // ----------------------
-
-    public boolean isValidArticle() {
-        return title != null && !title.isEmpty()
-                && description != null && !description.isEmpty()
-                && category != null && !category.isEmpty()
-                && publishedAt != null && !publishedAt.isEmpty();
-    }
+    public void toggleFavorite() { isFavorite = !isFavorite; }
 
     public Date getPublishedDate() {
         if (publishedAt == null) return null;
-
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
             return sdf.parse(publishedAt);
         } catch (ParseException e) {
             return null;
@@ -155,42 +92,25 @@ public class Article {
         return sdf.format(date);
     }
 
-    public boolean hasTag(String tag) {
-        return tags != null && tags.contains(tag);
-    }
-
-    public void toggleFavorite() {
-        this.isFavorite = !this.isFavorite;
-    }
-
-    // ----------------------
-    // equals & hashCode (IMPORTANT)
-    // ----------------------
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Article)) return false;
         Article article = (Article) o;
-        return Objects.equals(id, article.id);
+        return Objects.equals(url, article.url);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    public int hashCode() { return Objects.hash(url); }
 
     // ----------------------
-    // toString (debug)
+    // Classe interne pour source
     // ----------------------
-    @Override
-    public String toString() {
-        return "Article{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", category='" + category + '\'' +
-                ", author='" + author + '\'' +
-                ", publishedAt='" + publishedAt + '\'' +
-                ", isFavorite=" + isFavorite +
-                '}';
+    public static class Source {
+        @SerializedName("id")
+        public String id;
+
+        @SerializedName("name")
+        public String name;
     }
 }
