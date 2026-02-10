@@ -40,8 +40,12 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
 
+    // 🔹 Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+
+    // 🔹 Ajout Firestore
+    implementation(libs.firebase.firestore)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
