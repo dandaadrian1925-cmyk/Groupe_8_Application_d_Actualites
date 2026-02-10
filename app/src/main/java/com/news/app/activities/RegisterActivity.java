@@ -3,124 +3,121 @@ package com.news.app.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private TextInputEditText etFirstName, etLastName, etDOB, etEmail, etPassword;
-    private MaterialButton btnRegister;
-    private TextView tvLoginLink;
+    private TextView tvConnexion, tvInscription;
+    private EditText etEmail, etPassword, etConfirmPassword;
+    private Button btnRegister, btnVisitor;
+
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Lier les vues
-        etFirstName = findViewById(R.id.etFirstName);
-        etLastName = findViewById(R.id.etLastName);
-        etDOB = findViewById(R.id.etDOB);
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
+        // 🔹 Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // 🔹 Récupération des vues
+        tvConnexion = findViewById(R.id.tvConnexion);
+        tvInscription = findViewById(R.id.tvInscription);
+
+        etEmail = findViewById(R.id.etRegisterEmail);
+        etPassword = findViewById(R.id.etRegisterPassword);
+        etConfirmPassword = findViewById(R.id.etRegisterConfirmPassword);
+
         btnRegister = findViewById(R.id.btnRegister);
-        tvLoginLink = findViewById(R.id.tvLoginLink);
+        btnVisitor = findViewById(R.id.btnVisitor);
 
-        // Clique sur Créer compte
-        btnRegister.setOnClickListener(v -> attemptRegister());
+        // 🔹 Config switch Connexion / Inscription
+        setupSwitchColors();
 
-        // Lien vers Login
-        tvLoginLink.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
+        tvConnexion.setOnClickListener(v -> {
+            // Aller à LoginActivity
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
+        });
+
+        tvInscription.setOnClickListener(v -> {
+            // Reste sur cette page, juste pour afficher le switch correctement
+            setupSwitchColors();
+        });
+
+        // 🔹 Bouton Inscription
+        btnRegister.setOnClickListener(v -> goToInformationPage());
+
+        // 🔹 Bouton Visiteur
+        btnVisitor.setOnClickListener(v -> {
+            // Exemple : aller sur la page principale en mode visiteur
+            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
-    private void attemptRegister() {
-        String firstName = etFirstName.getText().toString().trim();
-        String lastName = etLastName.getText().toString().trim();
-        String dob = etDOB.getText().toString().trim();
+    private void setupSwitchColors() {
+        // Connexion non sélectionnée
+        tvConnexion.setBackgroundColor(0xFFFFEEEE); // léger rouge
+        tvConnexion.setTextColor(0xFF8B0000);       // texte rouge foncé
+
+        // Inscription sélectionnée
+        tvInscription.setBackgroundColor(0xFF8B0000); // rouge foncé
+        tvInscription.setTextColor(0xFFFFFFFF);       // texte blanc
+    }
+
+    private void goToInformationPage() {
         String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        // ----------------------
-        // Validation des champs
-        // ----------------------
-        if (!isValidName(firstName)) {
-            etFirstName.setError("Prénom invalide (≥3 lettres, ne commence pas par chiffre)");
-            etFirstName.requestFocus();
+        // 🔹 Validation champs
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
+            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!isValidName(lastName)) {
-            etLastName.setError("Nom invalide (≥3 lettres, ne commence pas par chiffre)");
-            etLastName.requestFocus();
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Adresse email invalide", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!isValidDOB(dob)) {
-            etDOB.setError("Date invalide (avant 01-01-2010)");
-            etDOB.requestFocus();
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(this, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!isValidEmail(email)) {
-            etEmail.setError("Email invalide");
-            etEmail.requestFocus();
-            return;
-        }
-
-        if (!isValidPassword(password)) {
-            etPassword.setError("Mot de passe invalide (8+ chars, 1 chiffre, 1 spécial)");
-            etPassword.requestFocus();
-            return;
-        }
-
-        // ----------------------
-        // TODO: Ajouter inscription Firebase ou backend ici
-        // ----------------------
-        Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
-
-        // Redirection vers LoginActivity
-        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-        finish();
-    }
-
-    // ----------------------
-    // Validation
-    // ----------------------
-    private boolean isValidName(String name) {
-        if (TextUtils.isEmpty(name) || name.length() < 3) return false;
-        return !Character.isDigit(name.charAt(0));
-    }
-
-    private boolean isValidDOB(String dob) {
-        if (TextUtils.isEmpty(dob)) return false;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            Date date = sdf.parse(dob);
-            Date limit = sdf.parse("2010-01-01");
-            return date.before(limit);
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private boolean isValidPassword(String password) {
-        if (password == null) return false;
-        String pattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
-        return password.matches(pattern);
+        // 🔹 Vérifier si email existe déjà dans Firestore
+        db.collection("users")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            Toast.makeText(RegisterActivity.this,
+                                    "Cette adresse email est déjà utilisée", Toast.LENGTH_LONG).show();
+                        } else {
+                            // 🔹 Email disponible, aller sur page Informations
+                            Intent intent = new Intent(RegisterActivity.this, InformationActivity.class);
+                            intent.putExtra("email", email);
+                            intent.putExtra("password", password);
+                            startActivity(intent);
+                        }
+                    } else {
+                        Toast.makeText(RegisterActivity.this,
+                                "Erreur lors de la vérification de l'email", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }
