@@ -3,7 +3,6 @@ package com.news.app.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,54 +26,52 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // 🔹 Firestore
         db = FirebaseFirestore.getInstance();
 
         // 🔹 Récupération des vues
         tvConnexion = findViewById(R.id.tvConnexion);
         tvInscription = findViewById(R.id.tvInscription);
-
         etEmail = findViewById(R.id.etRegisterEmail);
         etPassword = findViewById(R.id.etRegisterPassword);
         etConfirmPassword = findViewById(R.id.etRegisterConfirmPassword);
-
         btnRegister = findViewById(R.id.btnRegister);
         btnVisitor = findViewById(R.id.btnVisitor);
 
-        // 🔹 Config switch Connexion / Inscription
-        setupSwitchColors();
+        // 🔹 Onglet "Inscription" sélectionné par défaut
+        updateSwitchColors(true);
 
+        // 🔹 Clic sur Connexion -> bascule vers Login
         tvConnexion.setOnClickListener(v -> {
-            // Aller à LoginActivity
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();
         });
 
-        tvInscription.setOnClickListener(v -> {
-            // Reste sur cette page, juste pour afficher le switch correctement
-            setupSwitchColors();
-        });
+        // 🔹 Clic sur Inscription -> reste sur page
+        tvInscription.setOnClickListener(v -> updateSwitchColors(true));
 
-        // 🔹 Bouton Inscription
+        // 🔹 Inscription
         btnRegister.setOnClickListener(v -> goToInformationPage());
 
-        // 🔹 Bouton Visiteur
+        // 🔹 Visiteur
         btnVisitor.setOnClickListener(v -> {
-            // Exemple : aller sur la page principale en mode visiteur
-            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
             finish();
         });
     }
 
-    private void setupSwitchColors() {
-        // Connexion non sélectionnée
-        tvConnexion.setBackgroundColor(0xFFFFEEEE); // léger rouge
-        tvConnexion.setTextColor(0xFF8B0000);       // texte rouge foncé
-
-        // Inscription sélectionnée
-        tvInscription.setBackgroundColor(0xFF8B0000); // rouge foncé
-        tvInscription.setTextColor(0xFFFFFFFF);       // texte blanc
+    // 🔹 Met à jour les couleurs du switch
+    private void updateSwitchColors(boolean inscriptionSelected) {
+        if (inscriptionSelected) {
+            tvInscription.setBackgroundColor(0xFF8B0000);
+            tvInscription.setTextColor(0xFFFFFFFF);
+            tvConnexion.setBackgroundColor(0xFFFFEEEE);
+            tvConnexion.setTextColor(0xFF8B0000);
+        } else {
+            tvConnexion.setBackgroundColor(0xFF8B0000);
+            tvConnexion.setTextColor(0xFFFFFFFF);
+            tvInscription.setBackgroundColor(0xFFFFEEEE);
+            tvInscription.setTextColor(0xFF8B0000);
+        }
     }
 
     private void goToInformationPage() {
@@ -82,7 +79,6 @@ public class RegisterActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        // 🔹 Validation champs
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
@@ -98,7 +94,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // 🔹 Vérifier si email existe déjà dans Firestore
         db.collection("users")
                 .whereEqualTo("email", email)
                 .get()
@@ -108,7 +103,6 @@ public class RegisterActivity extends AppCompatActivity {
                             Toast.makeText(RegisterActivity.this,
                                     "Cette adresse email est déjà utilisée", Toast.LENGTH_LONG).show();
                         } else {
-                            // 🔹 Email disponible, aller sur page Informations
                             Intent intent = new Intent(RegisterActivity.this, InformationActivity.class);
                             intent.putExtra("email", email);
                             intent.putExtra("password", password);
