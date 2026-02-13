@@ -40,13 +40,14 @@ public class RegisterActivity extends AppCompatActivity {
         // 🔹 Onglet "Inscription" sélectionné par défaut
         updateSwitchColors(true);
 
-        // 🔹 Clic sur Connexion -> bascule vers Login
+        // 🔹 Clic sur Connexion -> bascule vers LoginActivity sans transition
         tvConnexion.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            overridePendingTransition(0, 0);
             finish();
         });
 
-        // 🔹 Clic sur Inscription -> reste sur page
+        // 🔹 Clic sur Inscription -> reste sur cette page
         tvInscription.setOnClickListener(v -> updateSwitchColors(true));
 
         // 🔹 Inscription
@@ -59,17 +60,21 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    // 🔹 Met à jour les couleurs du switch
+    // 🔹 Gestion couleurs du switch
     private void updateSwitchColors(boolean inscriptionSelected) {
         if (inscriptionSelected) {
-            tvInscription.setBackgroundColor(0xFF8B0000);
-            tvInscription.setTextColor(0xFFFFFFFF);
-            tvConnexion.setBackgroundColor(0xFFFFEEEE);
+            // Sélectionné : rose clair
+            tvInscription.setBackgroundColor(0xFFFFEEEE);
+            tvInscription.setTextColor(0xFF8B0000);
+
+            // Non sélectionné : blanc
+            tvConnexion.setBackgroundColor(0xFFFFFFFF);
             tvConnexion.setTextColor(0xFF8B0000);
         } else {
-            tvConnexion.setBackgroundColor(0xFF8B0000);
-            tvConnexion.setTextColor(0xFFFFFFFF);
-            tvInscription.setBackgroundColor(0xFFFFEEEE);
+            tvConnexion.setBackgroundColor(0xFFFFEEEE);
+            tvConnexion.setTextColor(0xFF8B0000);
+
+            tvInscription.setBackgroundColor(0xFFFFFFFF);
             tvInscription.setTextColor(0xFF8B0000);
         }
     }

@@ -56,12 +56,13 @@ public class LoginActivity extends AppCompatActivity {
             etPassword.setSelection(etPassword.getText().length());
         });
 
-        // 🔹 Clic sur Connexion -> reste
+        // 🔹 Clic sur Connexion -> reste sur Login
         tvConnexion.setOnClickListener(v -> updateSwitchColors(true));
 
-        // 🔹 Clic sur Inscription -> bascule vers RegisterActivity
+        // 🔹 Clic sur Inscription -> bascule vers RegisterActivity sans transition
         tvInscription.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            overridePendingTransition(0, 0);
             finish();
         });
 
@@ -69,27 +70,35 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> loginUser());
         btnGoToRegister.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            overridePendingTransition(0, 0);
             finish();
         });
+
         tvForgotPassword.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
         });
     }
 
+    // 🔹 Gestion couleurs du switch
     private void updateSwitchColors(boolean connexionSelected) {
         if (connexionSelected) {
-            tvConnexion.setBackgroundColor(0xFF8B0000);
-            tvConnexion.setTextColor(0xFFFFFFFF);
-            tvInscription.setBackgroundColor(0xFFFFEEEE);
+            // Sélectionné : rose clair
+            tvConnexion.setBackgroundColor(0xFFFFEEEE);
+            tvConnexion.setTextColor(0xFF8B0000);
+
+            // Non sélectionné : blanc
+            tvInscription.setBackgroundColor(0xFFFFFFFF);
             tvInscription.setTextColor(0xFF8B0000);
         } else {
-            tvInscription.setBackgroundColor(0xFF8B0000);
-            tvInscription.setTextColor(0xFFFFFFFF);
-            tvConnexion.setBackgroundColor(0xFFFFEEEE);
+            tvInscription.setBackgroundColor(0xFFFFEEEE);
+            tvInscription.setTextColor(0xFF8B0000);
+
+            tvConnexion.setBackgroundColor(0xFFFFFFFF);
             tvConnexion.setTextColor(0xFF8B0000);
         }
     }
 
+    // 🔹 Connexion Firebase
     private void loginUser() {
         if (isLoading) return;
 
