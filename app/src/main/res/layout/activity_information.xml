@@ -70,7 +70,9 @@
             android:inputType="date"
             android:background="@android:color/white"
             android:padding="16dp"
-            android:elevation="2dp"/>
+            android:elevation="2dp"
+            android:focusable="false"
+            android:clickable="true"/>
 
         <Space android:layout_height="20dp" android:layout_width="match_parent"/>
 
@@ -92,21 +94,7 @@
             android:background="@android:color/white"
             android:padding="16dp"
             android:elevation="2dp">
-
-            <CheckBox android:id="@+id/cbPolitics" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Politique"/>
-            <CheckBox android:id="@+id/cbEconomy" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Économie"/>
-            <CheckBox android:id="@+id/cbSports" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sports"/>
-            <CheckBox android:id="@+id/cbTechnology" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Technologie"/>
-            <CheckBox android:id="@+id/cbScience" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Science"/>
-            <CheckBox android:id="@+id/cbHealth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Santé"/>
-            <CheckBox android:id="@+id/cbEntertainment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Divertissement"/>
-            <CheckBox android:id="@+id/cbTravel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Voyage"/>
-            <CheckBox android:id="@+id/cbEnvironment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Environnement"/>
-            <CheckBox android:id="@+id/cbEducation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Éducation"/>
-            <CheckBox android:id="@+id/cbCulture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Culture"/>
-            <CheckBox android:id="@+id/cbFood" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cuisine"/>
-            <CheckBox android:id="@+id/cbOther" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Autres"/>
-            <CheckBox android:id="@+id/cbAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Toutes"/>
+            <!-- Les CheckBox seront ajoutées dynamiquement en Java -->
         </LinearLayout>
 
         <Space android:layout_height="30dp" android:layout_width="match_parent"/>
