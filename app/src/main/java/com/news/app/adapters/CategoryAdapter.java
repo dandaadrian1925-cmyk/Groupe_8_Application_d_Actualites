@@ -1,57 +1,78 @@
-package com.news.app;
+package com.news.app.adapters;
 
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Patterns;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity {
+import com.news.app.R;
+import com.news.app.model.Article;
+import com.squareup.picasso.Picasso;
 
-    EditText etEmail, etPassword;
-    Button btnLogin;
+import java.util.List;
+
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
+
+    private final Context context;
+    private final List<Article> categoryList;
+    private final OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Article article);
+    }
+
+    public CategoryAdapter(Context context, List<Article> categoryList, OnItemClickListener listener) {
+        this.context = context;
+        this.categoryList = categoryList;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_article, parent, false);
+        return new ViewHolder(view);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Article article = categoryList.get(position);
 
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
+        holder.tvTitle.setText(article.getTitle());
+        holder.tvCategory.setText(article.getCategory() != null ? article.getCategory() : "");
 
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString();
+        // Image avec Picasso ou fond gris si absente
+        if (article.getImageUrl() != null && !article.getImageUrl().isEmpty()) {
+            Picasso.get().load(article.getImageUrl()).into(holder.ivImage);
+            holder.ivImage.setBackgroundColor(Color.TRANSPARENT);
+        } else {
+            holder.ivImage.setImageDrawable(null);
+            holder.ivImage.setBackgroundColor(Color.LTGRAY);
+        }
 
-            if (!isValidEmail(email)) {
-                etEmail.setError("Email invalide");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (!isValidPassword(password)) {
-                etPassword.setError("Mot de passe invalide (8+ chars, 1 chiffre, 1 spécial)");
-                etPassword.requestFocus();
-                return;
-            }
-
-            // TODO: ici tu peux connecter à Firebase ou ton backend
-            Toast.makeText(MainActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-        });
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(article));
     }
 
-    // Vérifie email
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    @Override
+    public int getItemCount() {
+        return categoryList.size();
     }
 
-    // Vérifie mot de passe : 8+ caractères, au moins 1 chiffre et 1 caractère spécial
-    private boolean isValidPassword(String password) {
-        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
-        return password.matches(passwordPattern);
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivImage;
+        TextView tvTitle, tvCategory;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivImage = itemView.findViewById(R.id.ivThumbnails);
+            tvTitle = itemView.findViewById(R.id.tvTitles);
+            tvCategory = itemView.findViewById(R.id.tvCategorys);
+        }
     }
 }

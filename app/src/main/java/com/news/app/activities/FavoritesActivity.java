@@ -41,7 +41,7 @@ public class FavoritesActivity extends AppCompatActivity {
 
         for (int i = 1; i <= 10; i++) {
             Article article = new Article();
-            article.setId(String.valueOf(i));
+            article.setUrl(String.valueOf(i));
             article.setTitle("Article Favori " + i);
             article.setDescription("Description article favori " + i);
             article.setContent("Contenu complet favori " + i);

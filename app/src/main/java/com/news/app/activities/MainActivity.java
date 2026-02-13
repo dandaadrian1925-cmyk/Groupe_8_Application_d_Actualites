@@ -1,7 +1,5 @@
 package com.news.app.activities;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.news.app.R;
 import com.news.app.adapters.ArticleAdapter;
 import com.news.app.model.Article;
@@ -35,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private ArticleAdapter adapter;
     private List<Article> articlesList = new ArrayList<>();
 
+    private BottomNavigationView bottomNavigationView;
+
     // 🔹 Clé API NewsAPI
     private final String API_KEY = "3705e91ac46643458fc204af4087954a";
 
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         // Views
         rvArticles = findViewById(R.id.rvArticles);
         etSearch = findViewById(R.id.etSearch);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // RecyclerView
         adapter = new ArticleAdapter(this, articlesList);
@@ -68,10 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Recherche en temps réel
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() > 2) {
@@ -81,6 +81,51 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // BottomNavigationView listener
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                showHome();
+                return true;
+            } else if (id == R.id.nav_favorites) {
+                showFavorites();
+                return true;
+            } else if (id == R.id.nav_category) {
+                showCategories();
+                return true;
+            } else if (id == R.id.nav_profile) {
+                showProfile();
+                return true;
+            }
+            return false;
+        });
+
+        // Par défaut, sélectionner Home
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+    }
+
+    // 🔹 Méthodes pour les sections
+    private void showHome() {
+        fetchTopHeadlines();
+    }
+
+    private void showFavorites() {
+        articlesList.clear();
+        // TODO: charger les favoris depuis la base ou SharedPreferences
+        adapter.notifyDataSetChanged();
+    }
+
+    private void showCategories() {
+        articlesList.clear();
+        // TODO: charger les articles par catégorie
+        adapter.notifyDataSetChanged();
+    }
+
+    private void showProfile() {
+        articlesList.clear();
+        // TODO: afficher profil ou infos utilisateur
+        adapter.notifyDataSetChanged();
     }
 
     // 🔹 Top headlines

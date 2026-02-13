@@ -47,7 +47,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         // Mock : créer un article basé sur l'ID
         Article a = new Article();
-        a.setId(articleId);
+        a.setUrl(articleId);
         a.setTitle("Titre Article " + articleId);
         a.setAuthor("Auteur " + articleId);
         a.setPublishedAt("2026-02-07");

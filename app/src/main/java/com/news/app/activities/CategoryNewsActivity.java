@@ -50,7 +50,7 @@ public class CategoryNewsActivity extends AppCompatActivity {
     private void generateMockArticles(String category) {
         for (int i = 1; i <= 10; i++) {
             Article article = new Article();
-            article.setId(category + "_" + i);
+            article.setUrl(category + "_" + i);
             article.setTitle(category + " - Article " + i);
             article.setDescription("Description de l'article " + i + " dans " + category);
             article.setContent("Contenu complet de l'article " + i);

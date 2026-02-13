@@ -1,57 +1,53 @@
-package com.news.app;
+package com.news.app.network;
 
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Patterns;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import com.news.app.network.NewsResponse;
 
-import androidx.appcompat.app.AppCompatActivity;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
-public class MainActivity extends AppCompatActivity {
+public class NewsRepository {
 
-    EditText etEmail, etPassword;
-    Button btnLogin;
+    private static final String BASE_URL = "https://newsapi.org/v2/";
+    private final NewsApiService apiService;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    // Constructeur
+    public NewsRepository() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString();
-
-            if (!isValidEmail(email)) {
-                etEmail.setError("Email invalide");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (!isValidPassword(password)) {
-                etPassword.setError("Mot de passe invalide (8+ chars, 1 chiffre, 1 spécial)");
-                etPassword.requestFocus();
-                return;
-            }
-
-            // TODO: ici tu peux connecter à Firebase ou ton backend
-            Toast.makeText(MainActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-        });
+        apiService = retrofit.create(NewsApiService.class);
     }
 
-    // Vérifie email
-    private boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    // Récupérer les top headlines
+    public Call<NewsResponse> getTopHeadlines(String country, String category, String apiKey) {
+        return apiService.getTopHeadlines(country, category, apiKey);
     }
 
-    // Vérifie mot de passe : 8+ caractères, au moins 1 chiffre et 1 caractère spécial
-    private boolean isValidPassword(String password) {
-        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
-        return password.matches(passwordPattern);
+    // Rechercher des articles par mot-clé
+    public Call<NewsResponse> searchArticles(String query, String language, String apiKey) {
+        return apiService.searchArticles(query, language, apiKey);
+    }
+
+    // 🔹 Interface Retrofit
+    public interface NewsApiService {
+
+        @GET("top-headlines")
+        Call<NewsResponse> getTopHeadlines(
+                @Query("country") String country,
+                @Query("category") String category,
+                @Query("apiKey") String apiKey
+        );
+
+        @GET("everything")
+        Call<NewsResponse> searchArticles(
+                @Query("q") String query,
+                @Query("language") String language,
+                @Query("apiKey") String apiKey
+        );
     }
 }

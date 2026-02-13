@@ -13,7 +13,7 @@ googleServices = "4.4.4"
 glide = "4.16.0"
 retrofit = "2.9.0"
 gsonConverter = "2.9.0"
-
+picasso = "2.8"
 
 
 
@@ -33,6 +33,7 @@ glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", versi
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 gsonConverter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "gsonConverter" }
+picasso = "com.squareup.picasso:picasso:2.8"
 
 
 [plugins]

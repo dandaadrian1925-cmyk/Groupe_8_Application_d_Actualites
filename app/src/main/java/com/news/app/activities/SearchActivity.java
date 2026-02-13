@@ -60,7 +60,7 @@ public class SearchActivity extends AppCompatActivity {
     private void generateMockArticles() {
         for (int i = 1; i <= 15; i++) {
             Article article = new Article();
-            article.setId(String.valueOf(i));
+            article.setUrl(String.valueOf(i));
             article.setTitle("Actualité Sport " + i);
             article.setDescription("Description de l'article " + i);
             article.setContent("Contenu complet " + i);

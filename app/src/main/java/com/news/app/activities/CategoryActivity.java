@@ -57,7 +57,7 @@ public class CategoryActivity extends AppCompatActivity {
     private void mockArticles(String category) {
         for (int i = 1; i <= 10; i++) {
             Article a = new Article();
-            a.setId(category + "_" + i);
+            a.setUrl(category + "_" + i);
             a.setTitle(category + " - Article " + i);
             a.setDescription("Description de l'article " + i + " dans " + category);
             a.setContent("Contenu complet de l'article " + i + " dans la catégorie " + category);

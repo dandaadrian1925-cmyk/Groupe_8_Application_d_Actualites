@@ -8,6 +8,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.news.app.R;
@@ -22,13 +23,17 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Initialiser Firebase Auth
+        // ⚡ Initialiser Firebase
+        FirebaseApp.initializeApp(this);
+
+        // Initialiser FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
 
         // Attendre SPLASH_DELAY ms puis vérifier l'utilisateur
         new Handler(Looper.getMainLooper()).postDelayed(this::checkUser, SPLASH_DELAY);
     }
 
+    // Vérifier si l'utilisateur est connecté
     private void checkUser() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Intent intent;
