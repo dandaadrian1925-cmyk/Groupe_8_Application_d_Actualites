@@ -3,7 +3,11 @@ package com.news.app.activities;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
+    // 🔹 Header
+    private TextView tvProfile;
+    private TextView tvNotifications;
+
     // 🔹 Clé API NewsAPI
     private final String API_KEY = "3705e91ac46643458fc204af4087954a";
 
@@ -47,10 +55,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Views
+        // Views principales
         rvArticles = findViewById(R.id.rvArticles);
         etSearch = findViewById(R.id.etSearch);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        // ================= HEADER =================
+        View header = findViewById(R.id.header);
+        tvProfile = header.findViewById(R.id.tvProfile);
+        tvNotifications = header.findViewById(R.id.tvNotifications);
+
+        // Clic sur l'icône profil -> ouvrir menu
+        tvProfile.setOnClickListener(v -> showProfileMenu(v));
+
+        // Clic notifications (optionnel)
+        tvNotifications.setOnClickListener(v ->
+                Toast.makeText(MainActivity.this, "Notifications", Toast.LENGTH_SHORT).show()
+        );
+        // ===========================================
 
         // RecyclerView
         adapter = new ArticleAdapter(this, articlesList);
@@ -105,6 +127,37 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
+    // ================= MENU PROFIL HEADER =================
+    private void showProfileMenu(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(this, anchor);
+        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.menu_view_profile) {
+                Toast.makeText(this, "Voir Profil sélectionné", Toast.LENGTH_SHORT).show();
+                // TODO: startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+
+            } else if (id == R.id.menu_settings) {
+                Toast.makeText(this, "Paramètres sélectionné", Toast.LENGTH_SHORT).show();
+                // TODO: startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            } else if (id == R.id.menu_logout) {
+                Toast.makeText(this, "Déconnexion", Toast.LENGTH_SHORT).show();
+                // TODO: FirebaseAuth.getInstance().signOut();
+                return true;
+            }
+
+            return false;
+        });
+
+        popupMenu.show();
+    }
+    // =======================================================
+
     // 🔹 Méthodes pour les sections
     private void showHome() {
         fetchTopHeadlines();
@@ -112,19 +165,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFavorites() {
         articlesList.clear();
-        // TODO: charger les favoris depuis la base ou SharedPreferences
         adapter.notifyDataSetChanged();
     }
 
     private void showCategories() {
         articlesList.clear();
-        // TODO: charger les articles par catégorie
         adapter.notifyDataSetChanged();
     }
 
     private void showProfile() {
         articlesList.clear();
-        // TODO: afficher profil ou infos utilisateur
         adapter.notifyDataSetChanged();
     }
 
@@ -150,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // 🔹 Recherche par mot-clé
+    // 🔹 Recherche
     private void searchArticles(String query) {
         Call<NewsResponse> call = newsApiService.searchArticles(query, "en", API_KEY);
         call.enqueue(new Callback<NewsResponse>() {
