@@ -21,6 +21,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
 
+    // 🔹 État de chargement (comme LoginActivity)
+    private boolean isLoading = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // 🔹 Récupération des vues
+        // 🔹 Vues
         tvConnexion = findViewById(R.id.tvConnexion);
         tvInscription = findViewById(R.id.tvInscription);
         etEmail = findViewById(R.id.etRegisterEmail);
@@ -37,37 +40,34 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         btnVisitor = findViewById(R.id.btnVisitor);
 
-        // 🔹 Onglet "Inscription" sélectionné par défaut
+        // Onglet Inscription sélectionné
         updateSwitchColors(true);
 
-        // 🔹 Clic sur Connexion -> bascule vers LoginActivity sans transition
+        // Aller vers Login
         tvConnexion.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             overridePendingTransition(0, 0);
             finish();
         });
 
-        // 🔹 Clic sur Inscription -> reste sur cette page
         tvInscription.setOnClickListener(v -> updateSwitchColors(true));
 
-        // 🔹 Inscription
+        // 🔹 Bouton Inscription
         btnRegister.setOnClickListener(v -> goToInformationPage());
 
-        // 🔹 Visiteur
+        // Mode visiteur
         btnVisitor.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, MainActivity.class));
             finish();
         });
     }
 
-    // 🔹 Gestion couleurs du switch
+    // 🔹 Gestion couleurs
     private void updateSwitchColors(boolean inscriptionSelected) {
         if (inscriptionSelected) {
-            // Sélectionné : rose clair
             tvInscription.setBackgroundColor(0xFFFFEEEE);
             tvInscription.setTextColor(0xFF8B0000);
 
-            // Non sélectionné : blanc
             tvConnexion.setBackgroundColor(0xFFFFFFFF);
             tvConnexion.setTextColor(0xFF8B0000);
         } else {
@@ -80,6 +80,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void goToInformationPage() {
+
+        // 🔹 Empêche double clic (comme LoginActivity)
+        if (isLoading) return;
+
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
@@ -99,23 +103,38 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        // 🔹 Mode chargement
+        isLoading = true;
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Inscription...");
+
         db.collection("users")
                 .whereEqualTo("email", email)
                 .get()
                 .addOnCompleteListener(task -> {
+
+                    // 🔹 Fin chargement
+                    isLoading = false;
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("S'inscrire");
+
                     if (task.isSuccessful()) {
+
                         if (!task.getResult().isEmpty()) {
                             Toast.makeText(RegisterActivity.this,
-                                    "Cette adresse email est déjà utilisée", Toast.LENGTH_LONG).show();
+                                    "Cette adresse email est déjà utilisée",
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             Intent intent = new Intent(RegisterActivity.this, InformationActivity.class);
                             intent.putExtra("email", email);
                             intent.putExtra("password", password);
                             startActivity(intent);
                         }
+
                     } else {
                         Toast.makeText(RegisterActivity.this,
-                                "Erreur lors de la vérification de l'email", Toast.LENGTH_LONG).show();
+                                "Erreur lors de la vérification de l'email",
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
