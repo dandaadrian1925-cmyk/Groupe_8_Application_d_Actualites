@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
 import com.news.app.model.User;
@@ -24,6 +27,7 @@ public class InformationActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     private String email;
     private String password;
@@ -41,29 +45,39 @@ public class InformationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_information);
 
-        db = FirebaseFirestore.getInstance();
+        // 🔹 Interdire le retour vers l'activité précédente
+        this.setFinishOnTouchOutside(false);
 
+        // 🔹 Initialisation Firebase
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        // 🔹 Views
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
         tvDateOfBirth = findViewById(R.id.tvDateOfBirth);
         btnSubmit = findViewById(R.id.btnSubmit);
         categoriesLayout = findViewById(R.id.categoriesLayout);
 
-        // 🔹 Ajouter un ProgressBar en code
+        // 🔹 ProgressBar
         progressBar = new ProgressBar(this);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.GONE);
-        LinearLayout parentLayout = findViewById(R.id.categoriesLayout).getRootView().findViewById(R.id.categoriesLayout).getRootView() instanceof LinearLayout ? (LinearLayout)findViewById(R.id.categoriesLayout).getRootView() : null;
-        if (parentLayout != null) parentLayout.addView(progressBar);
+        LinearLayout rootLayout = findViewById(R.id.categoriesLayout);
+        rootLayout.addView(progressBar);
 
+        // 🔹 Récupération des infos depuis l'activité précédente
         Intent intent = getIntent();
         email = intent.getStringExtra("email");
         password = intent.getStringExtra("password");
 
+        // 🔹 Date picker
         tvDateOfBirth.setOnClickListener(v -> showDatePicker());
 
+        // 🔹 Checkboxes pour catégories
         addCategoryCheckboxes();
 
+        // 🔹 Bouton submit
         btnSubmit.setOnClickListener(v -> submitInformation());
     }
 
@@ -99,8 +113,7 @@ public class InformationActivity extends AppCompatActivity {
         String lastName = etLastName.getText().toString().trim();
         String dateOfBirth = tvDateOfBirth.getText().toString().trim();
 
-        if (TextUtils.isEmpty(firstName) || TextUtils.isEmpty(lastName)
-                || TextUtils.isEmpty(dateOfBirth)) {
+        if (TextUtils.isEmpty(firstName) || TextUtils.isEmpty(lastName) || TextUtils.isEmpty(dateOfBirth)) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -114,33 +127,50 @@ public class InformationActivity extends AppCompatActivity {
         btnSubmit.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
 
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setDateOfBirth(dateOfBirth);
-        user.setPreferences(new ArrayList<>(selectedCategories));
+        // 🔹 Créer le compte Firebase Auth
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    String uid = mAuth.getCurrentUser().getUid();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        user.setCreatedAt(sdf.format(new Date()));
-        user.setRole("user");
-        user.setProfileImageUrl("");
+                    // 🔹 Créer objet User pour Firestore
+                    User user = new User();
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setEmail(email);
+                    // Ne pas stocker le mot de passe dans Firestore
+                    user.setDateOfBirth(dateOfBirth);
+                    user.setPreferences(new ArrayList<>(selectedCategories));
+                    user.setCreatedAt(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+                    user.setRole("user");
+                    user.setProfileImageUrl("");
 
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(docRef -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Compte créé avec succès !", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, SplashActivity.class));
-                    finish();
+                    // 🔹 Enregistrer dans Firestore
+                    db.collection("users")
+                            .document(uid)
+                            .set(user)
+                            .addOnSuccessListener(aVoid -> {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(this, "Compte créé avec succès !", Toast.LENGTH_SHORT).show();
+
+                                startActivity(new Intent(this, SplashActivity.class));
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                btnSubmit.setEnabled(true);
+                                Toast.makeText(this, "Erreur Firestore : " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     btnSubmit.setEnabled(true);
-                    Toast.makeText(this,
-                            "Erreur lors de la création du compte : " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Erreur Auth : " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
+    }
+
+    // 🔹 Désactiver le bouton retour
+    @Override
+    public void onBackPressed() {
+        // Rien ici, impossible de revenir à l'activité précédente
     }
 }
