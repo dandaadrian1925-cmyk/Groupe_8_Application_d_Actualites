@@ -3,7 +3,6 @@ package com.news.app.activities;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -19,35 +18,29 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.news.app.R;
 import com.news.app.adapters.ArticleAdapter;
 import com.news.app.model.Article;
+import com.news.app.model.NewsResponse;
 import com.news.app.network.NewsApiService;
-import com.news.app.network.NewsResponse;
+import com.news.app.network.RetrofitClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView rvArticles;
     private EditText etSearch;
     private ArticleAdapter adapter;
-    private List<Article> articlesList = new ArrayList<>();
-
+    private final List<Article> articlesList = new ArrayList<>();
     private BottomNavigationView bottomNavigationView;
 
-    // 🔹 Header
     private TextView tvProfile;
     private TextView tvNotifications;
 
-    // 🔹 Clé API NewsAPI
-    private final String API_KEY = "3705e91ac46643458fc204af4087954a";
-
-    // Retrofit
     private NewsApiService newsApiService;
 
     @Override
@@ -55,170 +48,133 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Views principales
+        initViews();
+        setupRecyclerView();
+        setupApi();
+        setupListeners();
+
+        fetchTopHeadlines();
+    }
+
+    private void initViews() {
         rvArticles = findViewById(R.id.rvArticles);
         etSearch = findViewById(R.id.etSearch);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        // ================= HEADER =================
         View header = findViewById(R.id.header);
         tvProfile = header.findViewById(R.id.tvProfile);
         tvNotifications = header.findViewById(R.id.tvNotifications);
+    }
 
-        // Clic sur l'icône profil -> ouvrir menu
-        tvProfile.setOnClickListener(v -> showProfileMenu(v));
-
-        // Clic notifications (optionnel)
-        tvNotifications.setOnClickListener(v ->
-                Toast.makeText(MainActivity.this, "Notifications", Toast.LENGTH_SHORT).show()
-        );
-        // ===========================================
-
-        // RecyclerView
+    private void setupRecyclerView() {
         adapter = new ArticleAdapter(this, articlesList);
         rvArticles.setLayoutManager(new LinearLayoutManager(this));
         rvArticles.setAdapter(adapter);
+    }
 
-        // Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://newsapi.org/v2/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+    private void setupApi() {
+        newsApiService = RetrofitClient.getApiService();
+    }
 
-        newsApiService = retrofit.create(NewsApiService.class);
+    private void setupListeners() {
 
-        // Charger les articles par défaut
-        fetchTopHeadlines();
+        tvProfile.setOnClickListener(this::showProfileMenu);
 
-        // Recherche en temps réel
+        tvNotifications.setOnClickListener(v ->
+                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
+        );
+
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() > 2) {
-                    searchArticles(s.toString());
-                } else if (s.length() == 0) {
+                String query = s.toString().trim();
+
+                if (query.length() > 2) {
+                    searchArticles(query);
+                } else if (query.isEmpty()) {
                     fetchTopHeadlines();
                 }
             }
         });
 
-        // BottomNavigationView listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_home) {
-                showHome();
+            if (item.getItemId() == R.id.nav_home) {
+                fetchTopHeadlines();
                 return true;
-            } else if (id == R.id.nav_favorites) {
-                showFavorites();
-                return true;
-            } else if (id == R.id.nav_category) {
-                showCategories();
-                return true;
-            } else if (id == R.id.nav_profile) {
-                showProfile();
+            } else {
+                articlesList.clear();
+                adapter.notifyDataSetChanged();
                 return true;
             }
-            return false;
         });
 
-        // Par défaut, sélectionner Home
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
-    // ================= MENU PROFIL HEADER =================
     private void showProfileMenu(View anchor) {
         PopupMenu popupMenu = new PopupMenu(this, anchor);
         popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.menu_view_profile) {
-                Toast.makeText(this, "Voir Profil sélectionné", Toast.LENGTH_SHORT).show();
-                // TODO: startActivity(new Intent(this, ProfileActivity.class));
-                return true;
-
-            } else if (id == R.id.menu_settings) {
-                Toast.makeText(this, "Paramètres sélectionné", Toast.LENGTH_SHORT).show();
-                // TODO: startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-
-            } else if (id == R.id.menu_logout) {
-                Toast.makeText(this, "Déconnexion", Toast.LENGTH_SHORT).show();
-                // TODO: FirebaseAuth.getInstance().signOut();
-                return true;
-            }
-
-            return false;
+            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+            return true;
         });
 
         popupMenu.show();
     }
-    // =======================================================
 
-    // 🔹 Méthodes pour les sections
-    private void showHome() {
-        fetchTopHeadlines();
-    }
-
-    private void showFavorites() {
-        articlesList.clear();
-        adapter.notifyDataSetChanged();
-    }
-
-    private void showCategories() {
-        articlesList.clear();
-        adapter.notifyDataSetChanged();
-    }
-
-    private void showProfile() {
-        articlesList.clear();
-        adapter.notifyDataSetChanged();
-    }
-
-    // 🔹 Top headlines
     private void fetchTopHeadlines() {
-        Call<NewsResponse> call = newsApiService.getTopHeadlines("us", "general", API_KEY);
+        Call<NewsResponse> call = newsApiService.getTopHeadlines();
+        executeCall(call);
+    }
+
+    private void searchArticles(String query) {
+        Call<NewsResponse> call = newsApiService.searchArticles(query);
+        executeCall(call);
+    }
+
+    private void executeCall(Call<NewsResponse> call) {
         call.enqueue(new Callback<NewsResponse>() {
             @Override
-            public void onResponse(@NonNull Call<NewsResponse> call, @NonNull Response<NewsResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+            public void onResponse(@NonNull Call<NewsResponse> call,
+                                   @NonNull Response<NewsResponse> response) {
+
+                if (response.isSuccessful()
+                        && response.body() != null
+                        && response.body().getArticles() != null) {
+
                     articlesList.clear();
                     articlesList.addAll(response.body().getArticles());
                     adapter.notifyDataSetChanged();
+
                 } else {
-                    Toast.makeText(MainActivity.this, "Erreur récupération articles", Toast.LENGTH_SHORT).show();
+                    showError("HTTP " + response.code(), response);
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<NewsResponse> call, @NonNull Throwable t) {
-                Toast.makeText(MainActivity.this, "Échec réseau : " + t.getMessage(), Toast.LENGTH_LONG).show();
+            public void onFailure(@NonNull Call<NewsResponse> call,
+                                  @NonNull Throwable t) {
+
+                Toast.makeText(MainActivity.this,
+                        "Erreur réseau : " + t.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    // 🔹 Recherche
-    private void searchArticles(String query) {
-        Call<NewsResponse> call = newsApiService.searchArticles(query, "en", API_KEY);
-        call.enqueue(new Callback<NewsResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NewsResponse> call, @NonNull Response<NewsResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    articlesList.clear();
-                    articlesList.addAll(response.body().getArticles());
-                    adapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(MainActivity.this, "Erreur récupération recherche", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private void showError(String baseMessage, Response<?> response) {
+        String message = baseMessage;
 
-            @Override
-            public void onFailure(@NonNull Call<NewsResponse> call, @NonNull Throwable t) {
-                Toast.makeText(MainActivity.this, "Échec réseau : " + t.getMessage(), Toast.LENGTH_LONG).show();
+        try {
+            if (response.errorBody() != null) {
+                message += "\n" + response.errorBody().string();
             }
-        });
+        } catch (IOException ignored) {}
+
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }

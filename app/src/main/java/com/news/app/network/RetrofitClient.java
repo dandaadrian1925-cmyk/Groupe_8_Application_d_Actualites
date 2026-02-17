@@ -5,7 +5,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "https://newsapi.org/v2/";
+    // 🌍 URL LocalTunnel (backend exposé sur Internet)
+    private static final String BASE_URL =
+    "https://cekiqtkdgjgawxxerjdf.supabase.co/functions/v1/news-api/";
+
+
+
     private static Retrofit retrofit = null;
 
     public static NewsApiService getApiService() {
