@@ -33,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔹 Récupération des vues
         tvConnexion = findViewById(R.id.tvConnexion);
         tvInscription = findViewById(R.id.tvInscription);
         etEmail = findViewById(R.id.etEmail);
@@ -43,53 +42,69 @@ public class LoginActivity extends AppCompatActivity {
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
 
-        // 🔹 Onglet Connexion sélectionné par défaut
         updateSwitchColors(true);
 
-        // 🔹 Toggle œil mot de passe
         ivTogglePassword.setOnClickListener(v -> {
-            if (etPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            if (etPassword.getInputType() ==
+                    (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+
+                etPassword.setInputType(
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
             } else {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                etPassword.setInputType(
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             }
+
             etPassword.setSelection(etPassword.getText().length());
         });
 
-        // 🔹 Clic sur Connexion -> reste sur Login
         tvConnexion.setOnClickListener(v -> updateSwitchColors(true));
 
-        // 🔹 Clic sur Inscription -> bascule vers RegisterActivity sans transition
         tvInscription.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             overridePendingTransition(0, 0);
             finish();
         });
 
-        // 🔹 Clic sur boutons
         btnLogin.setOnClickListener(v -> loginUser());
+
         btnGoToRegister.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             overridePendingTransition(0, 0);
             finish();
         });
 
-        tvForgotPassword.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
-        });
+        tvForgotPassword.setOnClickListener(v ->
+                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class)));
     }
 
-    // 🔹 Gestion couleurs du switch
+    // 🔐 Redirection automatique si déjà connecté
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mAuth.getCurrentUser() != null) {
+
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
+    }
+
     private void updateSwitchColors(boolean connexionSelected) {
+
         if (connexionSelected) {
-            // Sélectionné : rose clair
+
             tvConnexion.setBackgroundColor(0xFFFFEEEE);
             tvConnexion.setTextColor(0xFF8B0000);
 
-            // Non sélectionné : blanc
             tvInscription.setBackgroundColor(0xFFFFFFFF);
             tvInscription.setTextColor(0xFF8B0000);
+
         } else {
+
             tvInscription.setBackgroundColor(0xFFFFEEEE);
             tvInscription.setTextColor(0xFF8B0000);
 
@@ -98,8 +113,8 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // 🔹 Connexion Firebase
     private void loginUser() {
+
         if (isLoading) return;
 
         String email = etEmail.getText().toString().trim();
@@ -123,27 +138,46 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
+
                     isLoading = false;
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Se connecter");
 
                     if (task.isSuccessful()) {
+
                         Toast.makeText(LoginActivity.this,
                                 "Connexion réussie 🎉 Bienvenue !",
                                 Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
+
+                        // 🔥 Nettoyage définitif de la back stack
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+
                     } else {
+
                         String errorMessage = "Erreur inattendue";
+
                         if (task.getException() != null) {
+
                             String message = task.getException().getMessage();
-                            if (message.contains("no user record")) errorMessage = "Aucun utilisateur trouvé avec cet email";
-                            else if (message.contains("password is invalid")) errorMessage = "Mot de passe incorrect";
-                            else if (message.contains("email address is badly formatted")) errorMessage = "Adresse email invalide";
-                            else if (message.contains("disabled")) errorMessage = "Ce compte a été désactivé";
-                            else errorMessage = message;
+
+                            if (message.contains("no user record"))
+                                errorMessage = "Aucun utilisateur trouvé avec cet email";
+                            else if (message.contains("password is invalid"))
+                                errorMessage = "Mot de passe incorrect";
+                            else if (message.contains("email address is badly formatted"))
+                                errorMessage = "Adresse email invalide";
+                            else if (message.contains("disabled"))
+                                errorMessage = "Ce compte a été désactivé";
+                            else
+                                errorMessage = message;
                         }
-                        Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+
+                        Toast.makeText(LoginActivity.this,
+                                errorMessage,
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }

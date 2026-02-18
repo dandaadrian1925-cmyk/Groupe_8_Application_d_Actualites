@@ -4,18 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.news.app.R;
 import com.news.app.adapters.ArticleAdapter;
 import com.news.app.model.Article;
@@ -26,40 +27,42 @@ import java.util.List;
 public class FavoritesActivity extends AppCompatActivity {
 
     private RecyclerView rvFavorites;
-    private EditText etSearch;
+    private EditText etSearchFavorites;
     private BottomNavigationView bottomNavigationView;
 
     private ArticleAdapter adapter;
+
     private final List<Article> favoritesList = new ArrayList<>();
-    private final List<Article> fullList = new ArrayList<>();
+    private final List<Article> fullFavoritesList = new ArrayList<>();
 
+    private FirebaseAuth auth;
     private FirebaseFirestore db;
-
-    private TextView tvProfile;
-    private TextView tvNotifications;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
 
-        initViews();
-        setupRecycler();
-        setupListeners();
-
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        initViews();
+        setupRecycler();
+        setupBottomNavigation();
+        setupSearch();
+    }
+
+    // 🔄 Recharge automatique quand on revient sur l'écran
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadFavorites();
     }
 
     private void initViews() {
         rvFavorites = findViewById(R.id.rvFavorites);
-        etSearch = findViewById(R.id.etSearchFavorites);
+        etSearchFavorites = findViewById(R.id.etSearchFavorites);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-
-        View header = findViewById(R.id.header);
-        tvProfile = header.findViewById(R.id.tvProfile);
-        tvNotifications = header.findViewById(R.id.tvNotifications);
     }
 
     private void setupRecycler() {
@@ -68,77 +71,134 @@ public class FavoritesActivity extends AppCompatActivity {
         rvFavorites.setAdapter(adapter);
     }
 
-    private void setupListeners() {
+    private void setupBottomNavigation() {
 
-        // 🔥 Bouton favoris sélectionné
         bottomNavigationView.setSelectedItemId(R.id.nav_favorites);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
+
             if (item.getItemId() == R.id.nav_home) {
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
+
+                Intent intent = new Intent(FavoritesActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (item.getItemId() == R.id.nav_favorites) {
+
+                return true;
+
+            } else if (item.getItemId() == R.id.nav_category) {
+
+                Intent intent = new Intent(FavoritesActivity.this, CategoryActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
                 return true;
             }
-            return true;
-        });
 
-        etSearch.addTextChangedListener(new TextWatcher() {
+            return false;
+        });
+    }
+
+    // 🔥 Empêche empilement et retour infini
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+    }
+
+    private void setupSearch() {
+
+        etSearchFavorites.addTextChangedListener(new TextWatcher() {
+
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                filterFavorites(s.toString());
+
+                String query = s.toString().toLowerCase().trim();
+
+                favoritesList.clear();
+
+                if (query.isEmpty()) {
+                    favoritesList.addAll(fullFavoritesList);
+                } else {
+                    for (Article article : fullFavoritesList) {
+
+                        if (article.getTitle() != null &&
+                                article.getTitle().toLowerCase().contains(query)) {
+
+                            favoritesList.add(article);
+                        }
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
             }
         });
-
-        tvNotifications.setOnClickListener(v ->
-                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
-        );
-
-        tvProfile.setOnClickListener(this::showProfileMenu);
     }
 
     private void loadFavorites() {
-        db.collection("favorites")
+
+        FirebaseUser user = auth.getCurrentUser();
+
+        if (user == null) {
+
+            Toast.makeText(this,
+                    "Veuillez vous connecter pour voir vos favoris",
+                    Toast.LENGTH_LONG).show();
+
+            favoritesList.clear();
+            fullFavoritesList.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
+        String uid = user.getUid();
+
+        db.collection("users")
+                .document(uid)
+                .collection("favorites")
                 .get()
-                .addOnSuccessListener(query -> {
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (isFinishing()) return;
 
                     favoritesList.clear();
-                    fullList.clear();
+                    fullFavoritesList.clear();
 
-                    for (var doc : query) {
-                        Article article = doc.toObject(Article.class);
-                        favoritesList.add(article);
-                        fullList.add(article);
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+
+                        Article article = document.toObject(Article.class);
+
+                        if (article != null) {
+                            article.setFavorite(true);
+                            favoritesList.add(article);
+                            fullFavoritesList.add(article);
+                        }
                     }
 
                     adapter.notifyDataSetChanged();
+
+                    if (favoritesList.isEmpty()) {
+                        Toast.makeText(this,
+                                "Aucun favori pour le moment",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+
+                    if (!isFinishing()) {
+                        Toast.makeText(this,
+                                "Erreur chargement favoris : " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
                 });
-    }
-
-    private void filterFavorites(String query) {
-
-        favoritesList.clear();
-
-        if (query.isEmpty()) {
-            favoritesList.addAll(fullList);
-        } else {
-            for (Article article : fullList) {
-                if (article.getTitle() != null &&
-                        article.getTitle().toLowerCase()
-                                .contains(query.toLowerCase())) {
-                    favoritesList.add(article);
-                }
-            }
-        }
-
-        adapter.notifyDataSetChanged();
-    }
-
-    private void showProfileMenu(View anchor) {
-        PopupMenu popupMenu = new PopupMenu(this, anchor);
-        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
-        popupMenu.show();
     }
 }

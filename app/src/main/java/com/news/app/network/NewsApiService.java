@@ -8,9 +8,26 @@ import retrofit2.http.Query;
 
 public interface NewsApiService {
 
+    // 🔥 Tout afficher
     @GET("top-headlines")
     Call<NewsResponse> getTopHeadlines();
 
+    // 🔥 Par catégorie
+    @GET("top-headlines")
+    Call<NewsResponse> getByCategory(
+            @Query("category") String category
+    );
+
+    // 🔥 Recherche globale
     @GET("search")
-    Call<NewsResponse> searchArticles(@Query("q") String query);
+    Call<NewsResponse> searchArticles(
+            @Query("q") String query
+    );
+
+    // 🔥 Recherche + catégorie
+    @GET("search")
+    Call<NewsResponse> searchByCategory(
+            @Query("q") String query,
+            @Query("category") String category
+    );
 }

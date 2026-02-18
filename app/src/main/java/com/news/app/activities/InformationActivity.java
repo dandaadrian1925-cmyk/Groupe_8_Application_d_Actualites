@@ -31,9 +31,15 @@ public class InformationActivity extends AppCompatActivity {
     private String password;
 
     private final String[] categories = new String[]{
-            "Politique", "Économie", "Sports", "Technologie",
-            "Santé", "Culture", "Science", "Divertissement",
-            "Education", "Autres"
+            "business",
+            "entertainment",
+            "general",
+            "health",
+            "science",
+            "sports",
+            "technology",
+            "Toutes",
+            "Autres"
     };
 
     private final Set<String> selectedCategories = new HashSet<>();
@@ -84,7 +90,6 @@ public class InformationActivity extends AppCompatActivity {
                     tvDateOfBirth.setText(date);
                 }, year, month, day);
 
-        // ✅ Limiter la date maximum à 31/12/2010
         Calendar maxDate = Calendar.getInstance();
         maxDate.set(2010, Calendar.DECEMBER, 31);
         dpd.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
@@ -114,7 +119,6 @@ public class InformationActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ Validation prénom
         if (firstName.length() < 3 || Character.isDigit(firstName.charAt(0))) {
             Toast.makeText(this,
                     "Le prénom doit contenir au moins 3 caractères et ne pas commencer par un chiffre",
@@ -122,7 +126,6 @@ public class InformationActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ Validation nom
         if (lastName.length() < 3 || Character.isDigit(lastName.charAt(0))) {
             Toast.makeText(this,
                     "Le nom doit contenir au moins 3 caractères et ne pas commencer par un chiffre",
@@ -158,8 +161,11 @@ public class InformationActivity extends AppCompatActivity {
                             .addOnSuccessListener(aVoid -> {
                                 progressBar.setVisibility(View.GONE);
                                 Toast.makeText(this, "Compte créé avec succès !", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(this, SplashActivity.class));
-                                finish();
+
+                                // 🔥 Nettoyage complet de la stack
+                                Intent newIntent = new Intent(this, SplashActivity.class);
+                                newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(newIntent);
                             })
                             .addOnFailureListener(e -> {
                                 progressBar.setVisibility(View.GONE);

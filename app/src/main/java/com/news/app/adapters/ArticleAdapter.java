@@ -3,6 +3,7 @@ package com.news.app.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
 
     private final Context context;
     private final List<Article> articles;
-
     private final FirebaseAuth auth;
     private final FirebaseFirestore db;
 
@@ -40,7 +40,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
     @NonNull
     @Override
     public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_article, parent, false);
+        View view = LayoutInflater.from(context)
+                .inflate(R.layout.item_article, parent, false);
         return new ArticleViewHolder(view);
     }
 
@@ -51,7 +52,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
 
     @Override
     public int getItemCount() {
-        return articles.size();
+        return articles != null ? articles.size() : 0;
     }
 
     class ArticleViewHolder extends RecyclerView.ViewHolder {
@@ -61,6 +62,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
 
         public ArticleViewHolder(@NonNull View itemView) {
             super(itemView);
+
             tvTitle = itemView.findViewById(R.id.tvTitles);
             tvDescription = itemView.findViewById(R.id.tvDescriptions);
             tvCategory = itemView.findViewById(R.id.tvCategorys);
@@ -70,6 +72,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
         }
 
         void bind(Article article) {
+
+            if (article == null) return;
 
             tvTitle.setText(article.getTitle());
             tvDescription.setText(article.getDescription());
@@ -87,17 +91,18 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
                 ivThumbnail.setBackgroundColor(Color.LTGRAY);
             }
 
-            // Etat initial favori
-            ivFavorite.setImageResource(article.isFavorite()
-                    ? android.R.drawable.btn_star_big_on
-                    : android.R.drawable.btn_star_big_off);
+            // ⭐ Etat initial
+            ivFavorite.setImageResource(
+                    article.isFavorite()
+                            ? android.R.drawable.btn_star_big_on
+                            : android.R.drawable.btn_star_big_off
+            );
 
-            // Gestion clic favori
+            // ⭐ Gestion clic favori
             ivFavorite.setOnClickListener(v -> {
 
                 FirebaseUser user = auth.getCurrentUser();
 
-                // 🔒 Si utilisateur non connecté
                 if (user == null) {
                     Toast.makeText(context,
                             "Veuillez vous connecter pour ajouter aux favoris",
@@ -115,47 +120,72 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
                     return;
                 }
 
+                // Sécurisation ID Firestore
+                String safeId = articleId
+                        .replace("/", "_")
+                        .replace(".", "_")
+                        .replace("#", "_")
+                        .replace("$", "_")
+                        .replace("[", "_")
+                        .replace("]", "_");
+
                 if (article.isFavorite()) {
 
-                    // 🔥 Suppression Firestore
+                    // 🔥 SUPPRESSION
                     db.collection("users")
                             .document(uid)
                             .collection("favorites")
-                            .document(articleId)
-                            .delete();
+                            .document(safeId)
+                            .delete()
+                            .addOnSuccessListener(unused -> {
 
-                    article.toggleFavorite();
+                                article.setFavorite(false);
+                                ivFavorite.setImageResource(android.R.drawable.btn_star_big_off);
 
-                    ivFavorite.setImageResource(android.R.drawable.btn_star_big_off);
-
-                    Toast.makeText(context,
-                            "Retiré des favoris",
-                            Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context,
+                                        "Retiré des favoris",
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(context,
+                                            "Erreur suppression : " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
+                            );
 
                 } else {
 
-                    // 🔥 Ajout Firestore
+                    // 🔥 AJOUT
+                    article.setFavorite(true); // Important
+
                     db.collection("users")
                             .document(uid)
                             .collection("favorites")
-                            .document(articleId)
-                            .set(article);
+                            .document(safeId)
+                            .set(article)
+                            .addOnSuccessListener(unused -> {
 
-                    article.toggleFavorite();
+                                ivFavorite.setImageResource(android.R.drawable.btn_star_big_on);
 
-                    ivFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+                                Toast.makeText(context,
+                                        "Ajouté aux favoris",
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
 
-                    Toast.makeText(context,
-                            "Ajouté aux favoris",
-                            Toast.LENGTH_SHORT).show();
+                                article.setFavorite(false);
+
+                                Toast.makeText(context,
+                                        "Erreur ajout : " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            });
                 }
             });
 
-            // Ouvrir article dans navigateur
+            // 🌍 Ouvrir article
             itemView.setOnClickListener(v -> {
                 if (article.getUrl() != null && !article.getUrl().isEmpty()) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                            android.net.Uri.parse(article.getUrl()));
+                            Uri.parse(article.getUrl()));
                     context.startActivity(browserIntent);
                 }
             });
