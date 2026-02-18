@@ -14,6 +14,7 @@ glide = "4.16.0"
 retrofit = "2.9.0"
 gsonConverter = "2.9.0"
 picasso = "2.8"
+swiperefresh = "1.1.0"
 
 
 
@@ -34,6 +35,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 gsonConverter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "gsonConverter" }
 picasso = "com.squareup.picasso:picasso:2.8"
+swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefresh" }
 
 
 [plugins]

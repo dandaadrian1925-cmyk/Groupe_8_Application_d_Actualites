@@ -98,6 +98,16 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        // ✅ Validation exigée par le cahier de charge
+        // 8 caractères minimum, 1 chiffre, 1 caractère spécial
+        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            Toast.makeText(this,
+                    "Mot de passe invalide (8 caractères minimum, 1 chiffre, 1 caractère spécial)",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
             return;

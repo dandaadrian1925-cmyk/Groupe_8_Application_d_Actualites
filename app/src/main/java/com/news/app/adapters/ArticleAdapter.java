@@ -8,11 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
 import com.news.app.model.Article;
 
@@ -23,9 +27,14 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
     private final Context context;
     private final List<Article> articles;
 
+    private final FirebaseAuth auth;
+    private final FirebaseFirestore db;
+
     public ArticleAdapter(Context context, List<Article> articles) {
         this.context = context;
         this.articles = articles;
+        this.auth = FirebaseAuth.getInstance();
+        this.db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
@@ -61,6 +70,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
         }
 
         void bind(Article article) {
+
             tvTitle.setText(article.getTitle());
             tvDescription.setText(article.getDescription());
             tvCategory.setText(article.getCategory());
@@ -77,14 +87,68 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
                 ivThumbnail.setBackgroundColor(Color.LTGRAY);
             }
 
-            // Favori
-            ivFavorite.setImageResource(article.isFavorite() ? android.R.drawable.btn_star_big_on
+            // Etat initial favori
+            ivFavorite.setImageResource(article.isFavorite()
+                    ? android.R.drawable.btn_star_big_on
                     : android.R.drawable.btn_star_big_off);
 
+            // Gestion clic favori
             ivFavorite.setOnClickListener(v -> {
-                article.toggleFavorite();
-                ivFavorite.setImageResource(article.isFavorite() ? android.R.drawable.btn_star_big_on
-                        : android.R.drawable.btn_star_big_off);
+
+                FirebaseUser user = auth.getCurrentUser();
+
+                // 🔒 Si utilisateur non connecté
+                if (user == null) {
+                    Toast.makeText(context,
+                            "Veuillez vous connecter pour ajouter aux favoris",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String uid = user.getUid();
+                String articleId = article.getUrl();
+
+                if (articleId == null || articleId.isEmpty()) {
+                    Toast.makeText(context,
+                            "Article invalide",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (article.isFavorite()) {
+
+                    // 🔥 Suppression Firestore
+                    db.collection("users")
+                            .document(uid)
+                            .collection("favorites")
+                            .document(articleId)
+                            .delete();
+
+                    article.toggleFavorite();
+
+                    ivFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+
+                    Toast.makeText(context,
+                            "Retiré des favoris",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+
+                    // 🔥 Ajout Firestore
+                    db.collection("users")
+                            .document(uid)
+                            .collection("favorites")
+                            .document(articleId)
+                            .set(article);
+
+                    article.toggleFavorite();
+
+                    ivFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+
+                    Toast.makeText(context,
+                            "Ajouté aux favoris",
+                            Toast.LENGTH_SHORT).show();
+                }
             });
 
             // Ouvrir article dans navigateur

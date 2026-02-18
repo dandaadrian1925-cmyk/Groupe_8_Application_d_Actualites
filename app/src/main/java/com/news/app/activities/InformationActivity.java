@@ -6,11 +6,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
 import com.news.app.model.User;
@@ -45,39 +43,31 @@ public class InformationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_information);
 
-        // 🔹 Interdire le retour vers l'activité précédente
         this.setFinishOnTouchOutside(false);
 
-        // 🔹 Initialisation Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔹 Views
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
         tvDateOfBirth = findViewById(R.id.tvDateOfBirth);
         btnSubmit = findViewById(R.id.btnSubmit);
         categoriesLayout = findViewById(R.id.categoriesLayout);
 
-        // 🔹 ProgressBar
         progressBar = new ProgressBar(this);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.GONE);
         LinearLayout rootLayout = findViewById(R.id.categoriesLayout);
         rootLayout.addView(progressBar);
 
-        // 🔹 Récupération des infos depuis l'activité précédente
         Intent intent = getIntent();
         email = intent.getStringExtra("email");
         password = intent.getStringExtra("password");
 
-        // 🔹 Date picker
         tvDateOfBirth.setOnClickListener(v -> showDatePicker());
 
-        // 🔹 Checkboxes pour catégories
         addCategoryCheckboxes();
 
-        // 🔹 Bouton submit
         btnSubmit.setOnClickListener(v -> submitInformation());
     }
 
@@ -93,6 +83,12 @@ public class InformationActivity extends AppCompatActivity {
                     String date = String.format(Locale.getDefault(), "%04d-%02d-%02d", y, m, d);
                     tvDateOfBirth.setText(date);
                 }, year, month, day);
+
+        // ✅ Limiter la date maximum à 31/12/2010
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.set(2010, Calendar.DECEMBER, 31);
+        dpd.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+
         dpd.show();
     }
 
@@ -118,40 +114,50 @@ public class InformationActivity extends AppCompatActivity {
             return;
         }
 
+        // ✅ Validation prénom
+        if (firstName.length() < 3 || Character.isDigit(firstName.charAt(0))) {
+            Toast.makeText(this,
+                    "Le prénom doit contenir au moins 3 caractères et ne pas commencer par un chiffre",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // ✅ Validation nom
+        if (lastName.length() < 3 || Character.isDigit(lastName.charAt(0))) {
+            Toast.makeText(this,
+                    "Le nom doit contenir au moins 3 caractères et ne pas commencer par un chiffre",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (selectedCategories.isEmpty()) {
             Toast.makeText(this, "Veuillez sélectionner au moins une catégorie", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 🔹 Désactiver le bouton et afficher le ProgressBar
         btnSubmit.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
 
-        // 🔹 Créer le compte Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = mAuth.getCurrentUser().getUid();
 
-                    // 🔹 Créer objet User pour Firestore
                     User user = new User();
                     user.setFirstName(firstName);
                     user.setLastName(lastName);
                     user.setEmail(email);
-                    // Ne pas stocker le mot de passe dans Firestore
                     user.setDateOfBirth(dateOfBirth);
                     user.setPreferences(new ArrayList<>(selectedCategories));
                     user.setCreatedAt(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
                     user.setRole("user");
                     user.setProfileImageUrl("");
 
-                    // 🔹 Enregistrer dans Firestore
                     db.collection("users")
                             .document(uid)
                             .set(user)
                             .addOnSuccessListener(aVoid -> {
                                 progressBar.setVisibility(View.GONE);
                                 Toast.makeText(this, "Compte créé avec succès !", Toast.LENGTH_SHORT).show();
-
                                 startActivity(new Intent(this, SplashActivity.class));
                                 finish();
                             })
@@ -168,9 +174,8 @@ public class InformationActivity extends AppCompatActivity {
                 });
     }
 
-    // 🔹 Désactiver le bouton retour
     @Override
     public void onBackPressed() {
-        // Rien ici, impossible de revenir à l'activité précédente
+        // Désactivé
     }
 }
