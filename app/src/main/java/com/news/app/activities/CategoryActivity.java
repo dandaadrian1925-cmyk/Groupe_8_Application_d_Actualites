@@ -82,18 +82,35 @@ public class CategoryActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
-            if (item.getItemId() == R.id.nav_home) {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+
                 startActivity(new Intent(this, MainActivity.class));
                 overridePendingTransition(0, 0);
+                finish();
                 return true;
 
-            } else if (item.getItemId() == R.id.nav_favorites) {
+            } else if (id == R.id.nav_favorites) {
+
                 startActivity(new Intent(this, FavoritesActivity.class));
                 overridePendingTransition(0, 0);
+                finish();
+                return true;
+
+            } else if (id == R.id.nav_category) {
+
+                return true; // déjà sur cette page
+
+            } else if (id == R.id.nav_profile) {
+
+                startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
                 return true;
             }
 
-            return true;
+            return false;
         });
     }
 
@@ -149,7 +166,6 @@ public class CategoryActivity extends AppCompatActivity {
 
                 selectedCategory = cat;
 
-                // Reset ancienne sélection
                 if (activeCategoryView != null) {
                     GradientDrawable oldBg = new GradientDrawable();
                     oldBg.setCornerRadius(70);
@@ -158,7 +174,6 @@ public class CategoryActivity extends AppCompatActivity {
                     activeCategoryView.setTextColor(Color.DKGRAY);
                 }
 
-                // Nouvelle sélection
                 GradientDrawable selectedBg = new GradientDrawable();
                 selectedBg.setCornerRadius(70);
                 selectedBg.setColor(redColor);
@@ -168,7 +183,6 @@ public class CategoryActivity extends AppCompatActivity {
 
                 activeCategoryView = tv;
 
-                // 🔥 Mise à jour immédiate
                 fetchArticles(etSearch.getText().toString().trim());
             });
 

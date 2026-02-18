@@ -52,7 +52,6 @@ public class FavoritesActivity extends AppCompatActivity {
         setupSearch();
     }
 
-    // 🔄 Recharge automatique quand on revient sur l'écran
     @Override
     protected void onResume() {
         super.onResume();
@@ -77,7 +76,9 @@ public class FavoritesActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
 
-            if (item.getItemId() == R.id.nav_home) {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
 
                 Intent intent = new Intent(FavoritesActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -85,13 +86,21 @@ public class FavoritesActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
 
-            } else if (item.getItemId() == R.id.nav_favorites) {
+            } else if (id == R.id.nav_favorites) {
 
                 return true;
 
-            } else if (item.getItemId() == R.id.nav_category) {
+            } else if (id == R.id.nav_category) {
 
                 Intent intent = new Intent(FavoritesActivity.this, CategoryActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.nav_profile) {
+
+                Intent intent = new Intent(FavoritesActivity.this, ProfileActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
@@ -102,7 +111,6 @@ public class FavoritesActivity extends AppCompatActivity {
         });
     }
 
-    // 🔥 Empêche empilement et retour infini
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(this, MainActivity.class);

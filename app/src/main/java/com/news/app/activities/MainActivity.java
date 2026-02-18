@@ -28,7 +28,6 @@ import com.news.app.model.NewsResponse;
 import com.news.app.network.NewsApiService;
 import com.news.app.network.RetrofitClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,35 +48,26 @@ public class MainActivity extends AppCompatActivity {
 
     private NewsApiService newsApiService;
 
-    // 🔥 FIREBASE
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
-    // 🔥 Double back to exit
     private long backPressedTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
-            setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-            auth = FirebaseAuth.getInstance();
-            db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-            initViews();
-            setupRecyclerView();
-            setupApi();
-            setupListeners();
+        initViews();
+        setupRecyclerView();
+        setupApi();
+        setupListeners();
 
-            fetchTopHeadlines();
-
-        } catch (Exception e) {
-            Toast.makeText(this,
-                    "Erreur initialisation : " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
-        }
+        fetchTopHeadlines();
     }
 
     private void initViews() {
@@ -95,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-
-        if (rvArticles == null) return;
 
         adapter = new ArticleAdapter(this, articlesList);
         rvArticles.setLayoutManager(new LinearLayoutManager(this));
@@ -143,12 +131,14 @@ public class MainActivity extends AppCompatActivity {
 
             bottomNavigationView.setOnItemSelectedListener(item -> {
 
-                if (item.getItemId() == R.id.nav_home) {
+                int id = item.getItemId();
+
+                if (id == R.id.nav_home) {
 
                     fetchTopHeadlines();
                     return true;
 
-                } else if (item.getItemId() == R.id.nav_favorites) {
+                } else if (id == R.id.nav_favorites) {
 
                     Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -156,9 +146,17 @@ public class MainActivity extends AppCompatActivity {
                     overridePendingTransition(0, 0);
                     return true;
 
-                } else if (item.getItemId() == R.id.nav_category) {
+                } else if (id == R.id.nav_category) {
 
                     Intent intent = new Intent(MainActivity.this, CategoryActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    return true;
+
+                } else if (id == R.id.nav_profile) {
+
+                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
@@ -170,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 🔥 Double back pour quitter
     @Override
     public void onBackPressed() {
         if (SystemClock.elapsedRealtime() - backPressedTime < 2000) {
@@ -183,38 +180,56 @@ public class MainActivity extends AppCompatActivity {
 
     private void showProfileMenu(View anchor) {
 
-        if (anchor == null) return;
-
         PopupMenu popupMenu = new PopupMenu(this, anchor);
         popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
-            return true;
+
+            int id = item.getItemId();
+
+            if (id == R.id.menu_view_profile) {
+
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_settings) {
+
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_logout) {
+
+                auth.signOut();
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                return true;
+            }
+
+            return false;
         });
 
         popupMenu.show();
     }
 
     private void fetchTopHeadlines() {
-
-        if (newsApiService == null) return;
-
         Call<NewsResponse> call = newsApiService.getTopHeadlines();
         executeCall(call);
     }
 
     private void searchArticles(String query) {
-
-        if (newsApiService == null) return;
-
         Call<NewsResponse> call = newsApiService.searchArticles(query);
         executeCall(call);
     }
 
     private void executeCall(Call<NewsResponse> call) {
-
-        if (call == null) return;
 
         call.enqueue(new Callback<NewsResponse>() {
 
@@ -222,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<NewsResponse> call,
                                    @NonNull Response<NewsResponse> response) {
 
-                if (!isFinishing() && response.isSuccessful()
+                if (response.isSuccessful()
                         && response.body() != null
                         && response.body().getArticles() != null) {
 
@@ -231,9 +246,6 @@ public class MainActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
 
                     syncFavoritesWithFirestore();
-
-                } else if (!isFinishing()) {
-                    showError("HTTP " + response.code(), response);
                 }
             }
 
@@ -241,11 +253,9 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<NewsResponse> call,
                                   @NonNull Throwable t) {
 
-                if (!isFinishing()) {
-                    Toast.makeText(MainActivity.this,
-                            "Erreur réseau : " + t.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                }
+                Toast.makeText(MainActivity.this,
+                        "Erreur réseau : " + t.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -270,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
 
                         Article favoriteArticle = document.toObject(Article.class);
-                        if (favoriteArticle == null) continue;
 
                         for (Article article : articlesList) {
 
@@ -285,22 +294,5 @@ public class MainActivity extends AppCompatActivity {
 
                     adapter.notifyDataSetChanged();
                 });
-    }
-
-    private void showError(String baseMessage, Response<?> response) {
-
-        String message = baseMessage;
-
-        try {
-            if (response != null && response.errorBody() != null) {
-                message += "\n" + response.errorBody().string();
-            }
-        } catch (IOException ignored) {}
-
-        if (!isFinishing()) {
-            Toast.makeText(MainActivity.this,
-                    message,
-                    Toast.LENGTH_LONG).show();
-        }
     }
 }
