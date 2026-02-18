@@ -1,63 +1,72 @@
 package com.news.app.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private ImageView ivProfile;
-    private TextView tvName, tvEmail, tvFavoritesCount;
-    private Button btnEditProfile, btnLogout;
+    private ImageView imgProfile;
+    private TextView tvFullName, tvSubInfo;
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        initViews();
-        loadUserData();
-        setupActions();
-    }
+        // 🔹 Initialisation Firebase
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-    private void initViews() {
-        ivProfile = findViewById(R.id.ivProfile);
-        tvName = findViewById(R.id.tvProfileName);
-        tvEmail = findViewById(R.id.tvProfileEmail);
-        tvFavoritesCount = findViewById(R.id.tvFavoritesCount);
-        btnEditProfile = findViewById(R.id.btnEditProfile);
-        btnLogout = findViewById(R.id.btnLogout);
+        // 🔹 Liaison des vues
+        imgProfile = findViewById(R.id.imgProfile);
+        tvFullName = findViewById(R.id.tvFullName);
+        tvSubInfo = findViewById(R.id.tvSubInfo);
+
+        // 🔹 Charger les infos utilisateur
+        loadUserData();
     }
 
     private void loadUserData() {
-        // MOCK DATA (à remplacer plus tard par SharedPreferences ou API)
-        tvName.setText("Dan Di");
-        tvEmail.setText("dandi@email.com");
-        tvFavoritesCount.setText("Articles favoris : 5");
 
-        // Image profil avec Glide
-        Glide.with(this)
-                .load("https://i.pravatar.cc/300") // Exemple avatar aléatoire
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(ivProfile);
-    }
+        if (mAuth.getCurrentUser() == null) return;
 
-    private void setupActions() {
-        btnEditProfile.setOnClickListener(v -> {
-            // TODO : ajouter modification profil
-        });
+        String uid = mAuth.getCurrentUser().getUid();
 
-        btnLogout.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        db.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+
+                        String sexe = documentSnapshot.getString("sexe");
+                        String prenom = documentSnapshot.getString("prenom");
+                        String nom = documentSnapshot.getString("nom");
+
+                        // 🔹 Email depuis FirebaseAuth
+                        String email = mAuth.getCurrentUser().getEmail();
+
+                        // 🔹 Gestion null pour éviter crash
+                        if (prenom == null) prenom = "";
+                        if (nom == null) nom = "";
+                        if (sexe == null) sexe = "";
+
+                        String prefix = sexe.equals("Masculin") ? "Mr. " : "Mrs. ";
+
+                        tvFullName.setText(prefix + prenom + " " + nom);
+                        tvSubInfo.setText(email != null ? email : "");
+                    }
+                });
     }
 }

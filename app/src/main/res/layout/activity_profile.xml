@@ -1,71 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:padding="16dp">
+    android:fillViewport="true"
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-        <!-- Photo Profil -->
-        <ImageView
-            android:id="@+id/ivProfile"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="32dp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/ic_launcher_background"/>
+        <!-- 🔴 HEADER ROUGE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="40dp"
+            android:paddingBottom="40dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="@drawable/bg_profile_header">
 
-        <!-- Nom -->
-        <TextView
-            android:id="@+id/tvProfileName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nom utilisateur"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"/>
+            <!-- Avatar rond -->
+            <FrameLayout
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:padding="20dp">
 
-        <!-- Email -->
-        <TextView
-            android:id="@+id/tvProfileEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="email@email.com"
-            android:textSize="16sp"
-            android:layout_marginTop="4dp"/>
+                <ImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="#8B0000"
+                    android:scaleType="centerInside" />
+            </FrameLayout>
 
-        <!-- Nombre favoris -->
-        <TextView
-            android:id="@+id/tvFavoritesCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Articles favoris : 0"
-            android:textSize="16sp"
-            android:layout_marginTop="24dp"/>
+            <!-- Nom complet -->
+            <TextView
+                android:id="@+id/tvFullName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mr. John Doe"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:gravity="center" />
 
-        <!-- Modifier Profil -->
-        <Button
-            android:id="@+id/btnEditProfile"
+            <!-- Email ou info secondaire -->
+            <TextView
+                android:id="@+id/tvSubInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="john@email.com"
+                android:textColor="#FFFFFFCC"
+                android:textSize="15sp"
+                android:layout_marginTop="6dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 🔽 CONTENU DU PROFIL (exemple) -->
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Modifier Profil"
-            android:layout_marginTop="32dp"/>
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <!-- Déconnexion -->
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Se déconnecter"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#E53935"
-            android:textColor="@android:color/white"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Informations supplémentaires"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
 </ScrollView>
