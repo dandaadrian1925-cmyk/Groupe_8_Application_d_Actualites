@@ -3,7 +3,6 @@ package com.news.app.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
+import com.news.app.activities.ArticleDetailActivity;
 import com.news.app.model.Article;
 
 import java.util.List;
@@ -155,7 +155,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
                 } else {
 
                     // 🔥 AJOUT
-                    article.setFavorite(true); // Important
+                    article.setFavorite(true);
 
                     db.collection("users")
                             .document(uid)
@@ -181,12 +181,14 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
                 }
             });
 
-            // 🌍 Ouvrir article
+            // 🌍 Ouvrir article dans ArticleDetailActivity (INTERNE)
             itemView.setOnClickListener(v -> {
                 if (article.getUrl() != null && !article.getUrl().isEmpty()) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(article.getUrl()));
-                    context.startActivity(browserIntent);
+
+                    Intent intent = new Intent(context, ArticleDetailActivity.class);
+                    intent.putExtra("url", article.getUrl());
+                    intent.putExtra("title", article.getTitle());
+                    context.startActivity(intent);
                 }
             });
         }

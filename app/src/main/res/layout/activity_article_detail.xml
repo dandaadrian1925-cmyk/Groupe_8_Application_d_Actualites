@@ -1,68 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:padding="16dp">
+    android:background="#F9F9FF">
 
+    <!-- ===================== ENTETE BLANCHE ===================== -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Titre de l'article -->
-        <TextView
-            android:id="@+id/tvDetailTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Titre de l'article"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="8dp"/>
-
-        <!-- Auteur -->
-        <TextView
-            android:id="@+id/tvDetailAuthor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Auteur"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="4dp"/>
-
-        <!-- Date -->
-        <TextView
-            android:id="@+id/tvDetailDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Image de l'article -->
+        <!-- 🔙 Bouton retour -->
         <ImageView
-            android:id="@+id/ivDetailImage"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
-            android:contentDescription="Image de l'article"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/rounded_image"/>
+            android:id="@+id/ivBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="#000000"
+            android:clickable="true"
+            android:focusable="true"/>
 
-        <!-- Contenu de l'article -->
+        <!-- 📰 Titre Article -->
         <TextView
-            android:id="@+id/tvDetailContent"
-            android:layout_width="match_parent"
+            android:id="@+id/tvArticleTitle"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Contenu complet de l'article..."
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:text="Titre de l'article"
+            android:textColor="#000000"
             android:textSize="16sp"
-            android:textColor="@color/black"
-            android:lineSpacingExtra="4dp"/>
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
     </LinearLayout>
-</ScrollView>
+
+    <!-- ===================== WEBVIEW ===================== -->
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ===================== PROGRESS ===================== -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/webView"
+        app:layout_constraintBottom_toBottomOf="@id/webView"
+        app:layout_constraintStart_toStartOf="@id/webView"
+        app:layout_constraintEnd_toEndOf="@id/webView"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

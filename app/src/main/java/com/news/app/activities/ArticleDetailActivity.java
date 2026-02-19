@@ -1,85 +1,96 @@
 package com.news.app.activities;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.news.app.R;
-import com.news.app.model.Article;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ArticleDetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle, tvAuthor, tvDate, tvContent;
-    private ImageView ivImage;
+    private WebView webView;
+    private ProgressBar progressBar;
+    private ImageView ivBack;
+    private TextView tvTitle;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_detail);
 
-        tvTitle = findViewById(R.id.tvDetailTitle);
-        tvAuthor = findViewById(R.id.tvDetailAuthor);
-        tvDate = findViewById(R.id.tvDetailDate);
-        tvContent = findViewById(R.id.tvDetailContent);
-        ivImage = findViewById(R.id.ivDetailImage);
+        // Initialisation des vues
+        webView = findViewById(R.id.webView);
+        progressBar = findViewById(R.id.progressBar);
+        ivBack = findViewById(R.id.ivBack);
+        tvTitle = findViewById(R.id.tvArticleTitle);
 
-        // Récupérer l'article (mocké pour l'instant)
-        Article article = getArticleFromIntent();
+        // Récupération des données
+        String url = getIntent().getStringExtra("url");
+        String title = getIntent().getStringExtra("title");
 
-        if (article != null) {
-            displayArticle(article);
+        if (title != null && !title.isEmpty()) {
+            tvTitle.setText(title);
+        }
+
+        // Configuration WebView
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        if (url != null && !url.isEmpty()) {
+            webView.loadUrl(url);
+        }
+
+        // Bouton retour
+        ivBack.setOnClickListener(v -> finish());
+    }
+
+    // Gestion bouton retour Android
+    @Override
+    public void onBackPressed() {
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
         }
     }
 
-    // ----------------------
-    // Méthode pour récupérer l'article passé via Intent
-    // ----------------------
-    private Article getArticleFromIntent() {
-        // Pour l'instant mock si aucun passage réel
-        String articleId = getIntent().getStringExtra("articleId");
-        if (articleId == null) return null;
-
-        // Mock : créer un article basé sur l'ID
-        Article a = new Article();
-        a.setUrl(articleId);
-        a.setTitle("Titre Article " + articleId);
-        a.setAuthor("Auteur " + articleId);
-        a.setPublishedAt("2026-02-07");
-        a.setContent("Contenu complet de l'article " + articleId + "...");
-        a.setImageUrl(""); // Pour l'instant vide
-        return a;
-    }
-
-    // ----------------------
-    // Afficher l'article
-    // ----------------------
-    private void displayArticle(Article article) {
-        tvTitle.setText(article.getTitle());
-        tvAuthor.setText("Par " + article.getAuthor());
-        tvContent.setText(article.getContent());
-
-        // Formater la date
-        tvDate.setText(formatDate(article.getPublishedAt()));
-
-        // Image placeholder
-        ivImage.setImageResource(R.drawable.ic_launcher_background);
-    }
-
-    private String formatDate(String dateStr) {
-        if (dateStr == null) return "";
-        SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat sdfOutput = new SimpleDateFormat("dd MMM yyyy");
-        try {
-            Date date = sdfInput.parse(dateStr);
-            return sdfOutput.format(date);
-        } catch (ParseException e) {
-            return dateStr;
+    // Nettoyage mémoire
+    @Override
+    protected void onDestroy() {
+        if (webView != null) {
+            webView.stopLoading();
+            webView.setWebViewClient(null);
+            webView.destroy();
         }
+        super.onDestroy();
     }
 }
