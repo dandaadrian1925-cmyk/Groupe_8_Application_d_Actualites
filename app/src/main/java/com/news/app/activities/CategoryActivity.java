@@ -8,8 +8,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.news.app.R;
 import com.news.app.adapters.ArticleAdapter;
 import com.news.app.model.Article;
@@ -41,9 +44,14 @@ public class CategoryActivity extends AppCompatActivity {
     private EditText etSearch;
     private BottomNavigationView bottomNavigationView;
 
+    private TextView tvProfile;
+    private TextView tvNotifications;
+
     private ArticleAdapter adapter;
     private final List<Article> articlesList = new ArrayList<>();
     private NewsApiService newsApiService;
+
+    private FirebaseAuth auth;
 
     private final String[] NEWS_CATEGORIES = {
             "business", "entertainment", "general",
@@ -58,10 +66,9 @@ public class CategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
-        categoriesContainer = findViewById(R.id.categoriesContainer);
-        rvArticles = findViewById(R.id.rvCategories);
-        etSearch = findViewById(R.id.etSearchCategory);
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        auth = FirebaseAuth.getInstance();
+
+        initViews();
 
         adapter = new ArticleAdapter(this, articlesList);
         rvArticles.setLayoutManager(new LinearLayoutManager(this));
@@ -71,10 +78,83 @@ public class CategoryActivity extends AppCompatActivity {
 
         setupBottomNavigation();
         setupSearch();
+        setupHeaderMenu();
         addCategories();
 
         fetchArticles(null);
     }
+
+    private void initViews() {
+        categoriesContainer = findViewById(R.id.categoriesContainer);
+        rvArticles = findViewById(R.id.rvCategories);
+        etSearch = findViewById(R.id.etSearchCategory);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        View header = findViewById(R.id.header);
+
+        if (header != null) {
+            tvProfile = header.findViewById(R.id.tvProfile);
+            tvNotifications = header.findViewById(R.id.tvNotifications);
+        }
+    }
+
+    // ================= HEADER =================
+
+    private void setupHeaderMenu() {
+
+        if (tvProfile != null) {
+            tvProfile.setOnClickListener(this::showProfileMenu);
+        }
+
+        if (tvNotifications != null) {
+            tvNotifications.setOnClickListener(v ->
+                    Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
+            );
+        }
+    }
+
+    private void showProfileMenu(View anchor) {
+
+        PopupMenu popupMenu = new PopupMenu(this, anchor);
+        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+
+            int id = item.getItemId();
+
+            if (id == R.id.menu_view_profile) {
+
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_settings) {
+
+                Intent intent = new Intent(this, SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_logout) {
+
+                auth.signOut();
+
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                return true;
+            }
+
+            return false;
+        });
+
+        popupMenu.show();
+    }
+
+    // ================= BOTTOM NAV =================
 
     private void setupBottomNavigation() {
 
@@ -86,33 +166,37 @@ public class CategoryActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
 
-                startActivity(new Intent(this, MainActivity.class));
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 overridePendingTransition(0, 0);
-                finish();
                 return true;
 
             } else if (id == R.id.nav_favorites) {
 
-                startActivity(new Intent(this, FavoritesActivity.class));
+                Intent intent = new Intent(this, FavoritesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 overridePendingTransition(0, 0);
-                finish();
                 return true;
 
             } else if (id == R.id.nav_category) {
-
-                return true; // déjà sur cette page
+                return true;
 
             } else if (id == R.id.nav_profile) {
 
-                startActivity(new Intent(this, ProfileActivity.class));
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 overridePendingTransition(0, 0);
-                finish();
                 return true;
             }
 
             return false;
         });
     }
+
+    // ================= SEARCH =================
 
     private void setupSearch() {
 
@@ -133,6 +217,8 @@ public class CategoryActivity extends AppCompatActivity {
             }
         });
     }
+
+    // ================= CATEGORIES =================
 
     private void addCategories() {
 
@@ -166,6 +252,10 @@ public class CategoryActivity extends AppCompatActivity {
 
                 selectedCategory = cat;
 
+                // 🔥 1. Effacer la liste immédiatement
+                articlesList.clear();
+                adapter.notifyDataSetChanged();
+
                 if (activeCategoryView != null) {
                     GradientDrawable oldBg = new GradientDrawable();
                     oldBg.setCornerRadius(70);
@@ -183,12 +273,15 @@ public class CategoryActivity extends AppCompatActivity {
 
                 activeCategoryView = tv;
 
+                // 🔥 2. Recharger les articles filtrés
                 fetchArticles(etSearch.getText().toString().trim());
             });
 
             categoriesContainer.addView(tv);
         }
     }
+
+    // ================= API =================
 
     private void fetchArticles(String query) {
 
@@ -232,6 +325,7 @@ public class CategoryActivity extends AppCompatActivity {
                     articlesList.addAll(response.body().getArticles());
                     adapter.notifyDataSetChanged();
                     rvArticles.scrollToPosition(0);
+                    rvArticles.setVisibility(View.VISIBLE);
 
                 } else {
                     Toast.makeText(CategoryActivity.this,

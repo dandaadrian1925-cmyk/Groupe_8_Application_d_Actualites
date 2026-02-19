@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +33,9 @@ public class FavoritesActivity extends AppCompatActivity {
     private EditText etSearchFavorites;
     private BottomNavigationView bottomNavigationView;
 
+    private TextView tvProfile;
+    private TextView tvNotifications;
+
     private ArticleAdapter adapter;
 
     private final List<Article> favoritesList = new ArrayList<>();
@@ -50,6 +56,7 @@ public class FavoritesActivity extends AppCompatActivity {
         setupRecycler();
         setupBottomNavigation();
         setupSearch();
+        setupHeaderMenu();
     }
 
     @Override
@@ -59,15 +66,77 @@ public class FavoritesActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+
         rvFavorites = findViewById(R.id.rvFavorites);
         etSearchFavorites = findViewById(R.id.etSearchFavorites);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        View header = findViewById(R.id.header);
+
+        if (header != null) {
+            tvProfile = header.findViewById(R.id.tvProfile);
+            tvNotifications = header.findViewById(R.id.tvNotifications);
+        }
     }
 
     private void setupRecycler() {
         adapter = new ArticleAdapter(this, favoritesList);
         rvFavorites.setLayoutManager(new LinearLayoutManager(this));
         rvFavorites.setAdapter(adapter);
+    }
+
+    private void setupHeaderMenu() {
+
+        if (tvProfile != null) {
+            tvProfile.setOnClickListener(this::showProfileMenu);
+        }
+
+        if (tvNotifications != null) {
+            tvNotifications.setOnClickListener(v ->
+                    Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
+            );
+        }
+    }
+
+    private void showProfileMenu(View anchor) {
+
+        PopupMenu popupMenu = new PopupMenu(this, anchor);
+        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+
+            int id = item.getItemId();
+
+            if (id == R.id.menu_view_profile) {
+
+                Intent intent = new Intent(FavoritesActivity.this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_settings) {
+
+                Intent intent = new Intent(FavoritesActivity.this, SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+
+            } else if (id == R.id.menu_logout) {
+
+                auth.signOut();
+
+                Intent intent = new Intent(FavoritesActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                return true;
+            }
+
+            return false;
+        });
+
+        popupMenu.show();
     }
 
     private void setupBottomNavigation() {

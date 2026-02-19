@@ -12,6 +12,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.news.app.R;
 
 import java.util.ArrayList;
@@ -80,14 +81,17 @@ public class PreferenceActivity extends AppCompatActivity {
 
                     for (int i = 0; i < chipGroupCategories.getChildCount(); i++) {
 
-                        Chip chip = (Chip) chipGroupCategories.getChildAt(i);
+                        if (chipGroupCategories.getChildAt(i) instanceof Chip) {
 
-                        String firestoreValue =
-                                convertDisplayToFirestore(
-                                        chip.getText().toString());
+                            Chip chip = (Chip) chipGroupCategories.getChildAt(i);
 
-                        if (savedPreferences.contains(firestoreValue)) {
-                            chip.setChecked(true);
+                            String firestoreValue =
+                                    convertDisplayToFirestore(
+                                            chip.getText().toString());
+
+                            if (savedPreferences.contains(firestoreValue)) {
+                                chip.setChecked(true);
+                            }
                         }
                     }
                 });
@@ -102,15 +106,18 @@ public class PreferenceActivity extends AppCompatActivity {
 
         for (int i = 0; i < chipGroupCategories.getChildCount(); i++) {
 
-            Chip chip = (Chip) chipGroupCategories.getChildAt(i);
+            if (chipGroupCategories.getChildAt(i) instanceof Chip) {
 
-            if (chip.isChecked()) {
+                Chip chip = (Chip) chipGroupCategories.getChildAt(i);
 
-                selected.add(
-                        convertDisplayToFirestore(
-                                chip.getText().toString()
-                        )
-                );
+                if (chip.isChecked()) {
+
+                    selected.add(
+                            convertDisplayToFirestore(
+                                    chip.getText().toString()
+                            )
+                    );
+                }
             }
         }
 
@@ -130,7 +137,7 @@ public class PreferenceActivity extends AppCompatActivity {
 
         db.collection("users")
                 .document(currentUser.getUid())
-                .update(updateData)
+                .set(updateData, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
 
                     isLoading = false;
@@ -159,8 +166,11 @@ public class PreferenceActivity extends AppCompatActivity {
 
         for (int i = 0; i < chipGroupCategories.getChildCount(); i++) {
 
-            Chip chip = (Chip) chipGroupCategories.getChildAt(i);
-            chip.setChecked(false);
+            if (chipGroupCategories.getChildAt(i) instanceof Chip) {
+
+                Chip chip = (Chip) chipGroupCategories.getChildAt(i);
+                chip.setChecked(false);
+            }
         }
     }
 

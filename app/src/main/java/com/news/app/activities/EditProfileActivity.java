@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.news.app.R;
 
 import java.util.HashMap;
@@ -120,7 +121,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         db.collection("users")
                 .document(currentUser.getUid())
-                .update(updates)
+                .set(updates, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Nom mis à jour", Toast.LENGTH_SHORT).show();
                     finish();
