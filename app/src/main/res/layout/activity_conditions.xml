@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:id="@+id/headerConditions"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_profile_header">
+
+        <ImageView
+            android:id="@+id/btnBackConditions"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Conditions d’utilisation"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- CONTENU -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerConditions"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- INTRO -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Introduction"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="En utilisant notre application News, vous acceptez les présentes conditions d’utilisation. Veuillez les lire attentivement avant d’utiliser nos services."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- ACCES -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Accès au service"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="L’application permet aux utilisateurs d’accéder à des articles d’actualité, du contenu informatif et des services personnalisés. Nous nous réservons le droit de modifier ou d’interrompre le service à tout moment."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- COMPTE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. Compte utilisateur"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lors de la création d’un compte, vous êtes responsable de la confidentialité de vos identifiants. Toute activité effectuée via votre compte relève de votre responsabilité."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- CONTENU -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Propriété intellectuelle"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tous les articles, textes, logos, images et contenus présents dans l’application sont protégés par les lois relatives à la propriété intellectuelle. Toute reproduction ou diffusion sans autorisation est interdite."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- UTILISATION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Utilisation acceptable"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="L’utilisateur s’engage à ne pas utiliser l’application à des fins illégales, frauduleuses ou nuisibles. Toute tentative de piratage ou d’exploitation abusive entraînera la suspension du compte."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- RESPONSABILITE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Limitation de responsabilité"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous nous efforçons de fournir des informations fiables et actualisées. Toutefois, nous ne garantissons pas l’exactitude ou l’exhaustivité des contenus publiés. L’utilisation des informations se fait sous votre propre responsabilité."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- MODIFICATION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Modification des conditions"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous pouvons modifier ces conditions à tout moment. Les utilisateurs seront informés via l’application en cas de changement significatif."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- CONTACT -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Contact"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pour toute question concernant ces conditions d’utilisation, veuillez nous contacter via la section Support."
+                android:textSize="15sp"
+                android:textColor="#555555" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:id="@+id/headerPreferences"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_profile_header">
+
+        <ImageView
+            android:id="@+id/btnBackPreferences"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="@android:color/white"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mes préférences"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- CONTENU -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerPreferences"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choisissez les catégories qui vous intéressent :"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- ChipGroup -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:singleSelection="false"
+                app:chipSpacing="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSport"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Sport"
+                    android:checkable="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipTechnologie"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Technologie"
+                    android:checkable="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPolitique"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Politique"
+                    android:checkable="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipEconomie"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Économie"
+                    android:checkable="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSante"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Santé"
+                    android:checkable="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCulture"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Culture"
+                    android:checkable="true"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Bouton Enregistrer -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSavePreferences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enregistrer"
+                android:textAllCaps="false"
+                android:layout_marginTop="32dp"
+                app:cornerRadius="12dp"/>
+
+            <!-- Bouton Réinitialiser -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResetPreferences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Réinitialiser"
+                android:textAllCaps="false"
+                android:layout_marginTop="12dp"
+                android:textColor="#D32F2F"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:cornerRadius="12dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

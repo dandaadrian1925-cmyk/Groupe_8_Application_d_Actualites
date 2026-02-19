@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- HEADER ROUGE -->
+    <LinearLayout
+        android:id="@+id/headerReset"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_profile_header">
+
+        <ImageView
+            android:id="@+id/btnBackReset"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Réinitialiser préférences"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- CONTENU -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headerReset"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Êtes-vous sûr de vouloir réinitialiser vos préférences ?"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Toutes vos catégories sélectionnées seront supprimées et vous devrez les reconfigurer."
+            android:textSize="15sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="32dp" />
+
+        <!-- BOUTON REINITIALISER -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmReset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Réinitialiser"
+            android:textAllCaps="false"
+            android:backgroundTint="#D32F2F"
+            android:textColor="@android:color/white" />
+
+        <!-- BOUTON ANNULER -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelReset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Annuler"
+            android:textAllCaps="false"
+            android:layout_marginTop="12dp"
+            android:textColor="#333333"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
+
+</RelativeLayout>

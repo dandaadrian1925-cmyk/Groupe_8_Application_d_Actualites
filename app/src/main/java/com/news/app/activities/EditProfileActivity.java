@@ -1,18 +1,25 @@
 package com.news.app.activities;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.news.app.R;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
@@ -22,7 +29,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private Uri selectedImageUri;
 
-    // Launcher pour choisir une image depuis la galerie
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
+
     private final ActivityResultLauncher<String> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
@@ -39,6 +49,10 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
         initViews();
         loadUserData();
         setupActions();
@@ -54,30 +68,65 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        // MOCK DATA
-        etName.setText("Dan Di");
-        etEmail.setText("dandi@email.com");
+        if (currentUser == null) return;
 
-        Glide.with(this)
-                .load("https://i.pravatar.cc/300")
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(ivProfile);
+        db.collection("users")
+                .document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+
+                        String fullName = documentSnapshot.getString("fullName");
+                        String email = documentSnapshot.getString("email");
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+
+                        etName.setText(fullName);
+                        etEmail.setText(email);
+
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.ic_launcher_background)
+                                    .into(ivProfile);
+                        }
+                    }
+                });
     }
 
     private void setupActions() {
 
-        btnChangePhoto.setOnClickListener(v -> {
-            // Ouvre la galerie pour choisir une image
-            pickImageLauncher.launch("image/*");
-        });
+        btnChangePhoto.setOnClickListener(v ->
+                pickImageLauncher.launch("image/*")
+        );
 
-        btnSave.setOnClickListener(v -> {
-            // TODO: sauvegarder les modifications (SharedPreferences ou API)
-            finish(); // retourne à ProfileActivity
-        });
+        btnSave.setOnClickListener(v -> saveProfile());
 
-        btnCancel.setOnClickListener(v -> {
-            finish(); // annule et retourne à ProfileActivity
-        });
+        btnCancel.setOnClickListener(v -> finish());
+    }
+
+    private void saveProfile() {
+
+        if (currentUser == null) return;
+
+        String name = etName.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, "Le nom est obligatoire", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("fullName", name);
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Nom mis à jour", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Erreur : " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 }

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:id="@+id/headerConfident"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_profile_header">
+
+        <ImageView
+            android:id="@+id/btnBackConfident"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Politique de confidentialité"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- CONTENU -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerConfident"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- INTRODUCTION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Introduction"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bienvenue sur notre application News. La protection de vos données personnelles est une priorité. Cette politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et quels sont vos droits."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- COLLECTE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Informations collectées"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous pouvons collecter les informations suivantes :\n\n• Nom et adresse email lors de l’inscription\n• Préférences de contenu (catégories sélectionnées)\n• Historique des articles consultés\n• Informations techniques (type d’appareil, version Android, adresse IP)\n• Données liées aux notifications push\n\nCes données sont collectées uniquement dans le cadre de l’amélioration de l’expérience utilisateur."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- UTILISATION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. Utilisation des données"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Les informations collectées sont utilisées pour :\n\n• Personnaliser votre fil d’actualité\n• Vous envoyer des notifications pertinentes\n• Améliorer la performance et la stabilité de l’application\n• Analyser l’utilisation afin d’optimiser nos services\n• Garantir la sécurité des comptes utilisateurs"
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- PARTAGE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Partage des données"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous ne vendons ni ne louons vos données personnelles. Certaines informations peuvent être partagées avec des prestataires de services (ex : hébergement cloud ou services de notification) uniquement pour assurer le bon fonctionnement de l’application."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- SECURITE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Sécurité des données"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles pour protéger vos données contre l’accès non autorisé, la modification, la divulgation ou la destruction."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- DROITS -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Vos droits"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vous avez le droit de :\n\n• Accéder à vos données personnelles\n• Demander la modification de vos informations\n• Supprimer votre compte\n• Retirer votre consentement aux notifications\n\nCes options sont disponibles dans la section Profil de l’application."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- MODIFICATION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Modification de la politique"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nous nous réservons le droit de modifier cette politique à tout moment. Toute modification sera affichée dans cette section."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- CONTACT -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Contact"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pour toute question concernant cette politique de confidentialité, veuillez nous contacter via la section Support de l’application."
+                android:textSize="15sp"
+                android:textColor="#555555" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

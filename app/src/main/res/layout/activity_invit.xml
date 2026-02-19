@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:id="@+id/headerInvit"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_profile_header">
+
+        <ImageView
+            android:id="@+id/btnBackInvit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inviter des amis"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- CONTENU -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerInvit"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- ICONE -->
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@android:drawable/ic_menu_share"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- TITRE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Partagez News avec vos amis"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- DESCRIPTION -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Invitez vos amis à découvrir les dernières actualités et contenus personnalisés. Partagez l'application et profitez ensemble d'une meilleure expérience d'information."
+                android:textSize="15sp"
+                android:textColor="#555555"
+                android:gravity="center"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- BOUTON PARTAGER -->
+            <Button
+                android:id="@+id/btnShareApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Partager l'application"
+                android:textColor="@android:color/white"
+                android:background="#D32F2F"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- BOUTON COPIER LIEN -->
+            <Button
+                android:id="@+id/btnCopyLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Copier le lien"
+                android:textColor="#D32F2F"
+                android:background="@android:color/white"
+                android:padding="12dp"/>
+
+            <!-- LIEN -->
+            <TextView
+                android:id="@+id/tvAppLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="https://play.google.com/store/apps/details?id=com.example.news"
+                android:textSize="13sp"
+                android:textColor="#777777"
+                android:gravity="center"
+                android:layout_marginTop="20dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
